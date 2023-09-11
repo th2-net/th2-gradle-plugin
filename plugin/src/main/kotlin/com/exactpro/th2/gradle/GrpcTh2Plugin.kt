@@ -6,33 +6,38 @@ import com.google.protobuf.gradle.ProtobufPlugin
 import com.google.protobuf.gradle.id
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
+
+private const val TH2_GRPC_EXTENSION = "th2Grpc"
 
 class GrpcTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.apply(BaseTh2Plugin::class.java)
         val protobufExtension = applyProtobufPlugin(project)
-        applyJavaPlugin(project, protobufExtension)
+        configureJavaPlugin(project, protobufExtension)
     }
 
     private fun applyProtobufPlugin(project: Project): ProtobufExtension {
+        val grpcTh2Extension = project.extensions.create<GrpcTh2Extension>(TH2_GRPC_EXTENSION)
         project.pluginManager.apply(ProtobufPlugin::class.java)
         val protobufExtension = project.extensions.getByType<ProtobufExtension>()
-        configureProtobufExtension(protobufExtension)
+        configureProtobufExtension(protobufExtension, grpcTh2Extension)
         return protobufExtension
     }
 
-    private fun applyJavaPlugin(
+    private fun configureJavaPlugin(
         project: Project,
         protobufExtension: ProtobufExtension,
     ) {
-        project.pluginManager.apply(JavaLibraryPlugin::class.java)
-        addResources(project, protobufExtension)
-        configureJavaTaskDependencies(project)
+        project.plugins.withType<JavaPlugin> {
+            addResources(project, protobufExtension)
+            configureJavaTaskDependencies(project)
+        }
     }
 
     private fun configureJavaTaskDependencies(project: Project) {
@@ -59,30 +64,39 @@ class GrpcTh2Plugin : Plugin<Project> {
         }
     }
 
-    private fun configureProtobufExtension(protobufExtension: ProtobufExtension) {
+    private fun configureProtobufExtension(
+        protobufExtension: ProtobufExtension,
+        grpcTh2Extension: GrpcTh2Extension,
+    ) {
         with(protobufExtension) {
-            // TODO: make versions configurable
             protoc {
-                artifact = "$PROTOC_ARTIFACT:3.23.2"
+                val version = grpcTh2Extension.protocVersion.convention("3.23.2")
+                artifact = "$PROTOC_ARTIFACT:${version.get()}"
             }
             plugins {
+                val hasServices = grpcTh2Extension.includeServices.convention(false).get()
                 id("grpc") {
-                    artifact = "$GRPC_ARTIFACT:1.56.0"
+                    val version = grpcTh2Extension.grpcVersion.convention("1.56.0")
+                    artifact = "$GRPC_ARTIFACT:${version.get()}"
                 }
-                // TODO: make service block optional (for grpc projects without services)
-                id("services") {
-                    artifact = "$SERVICES_GENERATOR_ARTIFACT:3.4.0:all@jar"
+                if (hasServices) {
+                    id("services") {
+                        val version = grpcTh2Extension.serviceGeneratorVersion.convention("3.4.0").get()
+                        artifact = "$SERVICES_GENERATOR_ARTIFACT:$version:all@jar"
+                    }
                 }
 
                 generateProtoTasks {
                     ofSourceSet("main").forEach {
                         it.plugins {
                             id("grpc") {}
-                            id("services") {
-                                option("javaInterfacesPath=./java/src")
-                                option("javaInterfacesImplPath=./java/src")
-                                option("javaMetaInfPath=./java/resources")
-                                option("pythonPath=./python")
+                            if (hasServices) {
+                                id("services") {
+                                    option("javaInterfacesPath=./java/src")
+                                    option("javaInterfacesImplPath=./java/src")
+                                    option("javaMetaInfPath=./java/resources")
+                                    option("pythonPath=./python")
+                                }
                             }
                         }
                     }

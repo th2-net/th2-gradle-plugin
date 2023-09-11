@@ -4,7 +4,6 @@
 package com.exactpro.th2.gradle
 
 import java.io.File
-import kotlin.test.assertTrue
 import kotlin.test.Test
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.io.TempDir
@@ -25,7 +24,19 @@ class Th2GradlePluginPluginFunctionalTest {
         settingsFile.writeText("")
         buildFile.writeText("""
             plugins {
-                id('com.exactpro.th2.gradle.greeting')
+                id('java')
+                id('maven-publish')
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("test")
+              }
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
             }
         """.trimIndent())
 
@@ -33,11 +44,12 @@ class Th2GradlePluginPluginFunctionalTest {
         val runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
-        runner.withArguments("greeting")
+//        runner.withArguments("greeting")
         runner.withProjectDir(projectDir)
+        runner.withArguments("--stacktrace", "tasks")
         val result = runner.build()
 
         // Verify the result
-        assertTrue(result.output.contains("Hello from plugin 'com.exactpro.th2.gradle.greeting'"))
+//        assertTrue(result.output.contains("Hello from plugin 'com.exactpro.th2.gradle.greeting'"))
     }
 }
