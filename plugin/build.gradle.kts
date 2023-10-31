@@ -23,17 +23,17 @@ dependencies {
 }
 
 gradlePlugin {
-    plugins.creating {
+    val base by plugins.creating {
         id = "com.exactpro.th2.gradle.base"
         implementationClass = "com.exactpro.th2.gradle.BaseTh2Plugin"
     }
     // Define the plugin
-    plugins.creating {
+    val grpc by plugins.creating {
         id = "com.exactpro.th2.gradle.grpc"
         implementationClass = "com.exactpro.th2.gradle.GrpcTh2Plugin"
     }
 
-    plugins.creating {
+    val publish by plugins.creating {
         id = "com.exactpro.th2.gradle.publish"
         implementationClass = "com.exactpro.th2.gradle.PublishTh2Plugin"
     }
