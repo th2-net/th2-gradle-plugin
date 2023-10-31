@@ -8,7 +8,7 @@ on:
       - README.md
 
 jobs:
-  build-gradle-project:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
@@ -16,4 +16,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
-        run: ./gradlew clean build publishPlugins -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
+        run: gradle clean build publishPlugins -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
