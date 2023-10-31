@@ -10,7 +10,7 @@ on:
       - README.md
 
 jobs:
-  build-gradle-project:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
@@ -18,4 +18,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
-        run: gradle clean build
+        run: gradle clean build --info
