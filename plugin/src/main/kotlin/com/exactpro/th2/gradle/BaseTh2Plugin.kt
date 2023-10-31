@@ -1,12 +1,9 @@
 package com.exactpro.th2.gradle
 
-import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
