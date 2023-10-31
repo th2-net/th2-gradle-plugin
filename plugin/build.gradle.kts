@@ -3,7 +3,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     kotlin("jvm") version "1.8.20"
-    id("com.gradle.plugin-publish") version "1.2.0"
+    id("com.gradle.plugin-publish") version "1.2.1"
 }
 
 repositories {
@@ -15,7 +15,7 @@ repositories {
 dependencies {
     implementation("io.github.gradle-nexus:publish-plugin:1.3.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.4")
-    implementation("org.owasp:dependency-check-gradle:8.4.0")
+    implementation("org.owasp:dependency-check-gradle:8.4.1")
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -23,25 +23,24 @@ dependencies {
 }
 
 gradlePlugin {
-    val base by plugins.creating {
+    plugins.creating {
         id = "com.exactpro.th2.gradle.base"
         implementationClass = "com.exactpro.th2.gradle.BaseTh2Plugin"
     }
     // Define the plugin
-    val grpc by plugins.creating {
+    plugins.creating {
         id = "com.exactpro.th2.gradle.grpc"
         implementationClass = "com.exactpro.th2.gradle.GrpcTh2Plugin"
     }
 
-    val publish by plugins.creating {
+    plugins.creating {
         id = "com.exactpro.th2.gradle.publish"
         implementationClass = "com.exactpro.th2.gradle.PublishTh2Plugin"
     }
 }
 
 // Add a source set for the functional test suite
-val functionalTestSourceSet = sourceSets.create("functionalTest") {
-}
+val functionalTestSourceSet: SourceSet = sourceSets.create("functionalTest") { }
 
 tasks.getByName("compileFunctionalTestKotlin").dependsOn(tasks.getByName("compileKotlin"))
 
