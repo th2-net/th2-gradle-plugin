@@ -2,10 +2,6 @@ name: build and test gradle project
 
 on:
   push:
-    branches-ignore:
-    - master
-    - version-*
-    - dependabot*
     paths-ignore:
       - README.md
 
@@ -19,5 +15,5 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           cache-read-only: false
-      - name: Run build with Gradle Wrapper
+      - name: Run build with Gradle
         run: gradle clean build --info
