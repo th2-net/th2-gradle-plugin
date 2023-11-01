@@ -15,6 +15,10 @@ repositories {
 dependencies {
     implementation("io.github.gradle-nexus:publish-plugin:1.3.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.4")
+    implementation("com.github.jk1.dependency-license-report:com.github.jk1.dependency-license-report.gradle.plugin:2.5")
+    implementation("de.undercouch.download:de.undercouch.download.gradle.plugin:5.5.0")
+    implementation("com.gorylenko.gradle-git-properties:gradle-git-properties:2.4.1")
+
     implementation("org.owasp:dependency-check-gradle:8.4.1")
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
