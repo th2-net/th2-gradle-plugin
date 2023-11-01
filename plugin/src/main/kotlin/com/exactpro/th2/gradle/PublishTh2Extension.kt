@@ -2,7 +2,7 @@ package com.exactpro.th2.gradle
 
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
 import java.net.URI
 import javax.inject.Inject
@@ -16,6 +16,8 @@ open class PublishTh2Extension @Inject constructor(
 
     val sonatype: Sonatype = objectFactory.newInstance(Sonatype::class.java)
 
+    val signature: Signature = objectFactory.newInstance(Signature::class.java)
+
     fun pom(block: Action<in Pom>) {
         block.execute(pom)
     }
@@ -27,28 +29,39 @@ open class PublishTh2Extension @Inject constructor(
     fun sonatype(block: Action<in Sonatype>) {
         block.execute(sonatype)
     }
+
+    fun signature(block: Action<in Signature>) {
+        block.execute(signature)
+    }
 }
 
 open class Pom @Inject constructor(
     objectFactory: ObjectFactory,
 ) {
-    val vcsUrl: Provider<String> = objectFactory.property()
+    val vcsUrl: Property<String> = objectFactory.property()
 }
 
 open class Nexus @Inject constructor(
     objectFactory: ObjectFactory,
 ) {
-    val url: Provider<URI> = objectFactory.property()
+    val url: Property<URI> = objectFactory.property()
 
-    val username: Provider<String> = objectFactory.property()
+    val username: Property<String> = objectFactory.property()
 
-    val password: Provider<String> = objectFactory.property()
+    val password: Property<String> = objectFactory.property()
 }
 
 open class Sonatype @Inject constructor(
     objectFactory: ObjectFactory,
 ) {
-    val username: Provider<String> = objectFactory.property()
+    val username: Property<String> = objectFactory.property()
 
-    val password: Provider<String> = objectFactory.property()
+    val password: Property<String> = objectFactory.property()
+}
+open class Signature @Inject constructor(
+    objectFactory: ObjectFactory,
+) {
+    val key: Property<String> = objectFactory.property()
+
+    val password: Property<String> = objectFactory.property()
 }

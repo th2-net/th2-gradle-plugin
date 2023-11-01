@@ -22,10 +22,25 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+// Add a source set for the functional test suite
+val functionalTestSourceSet: SourceSet = sourceSets.create("functionalTest") { }
+
+tasks.getByName("compileFunctionalTestKotlin").dependsOn(tasks.getByName("compileKotlin"))
+
+configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
+configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+
+// Add a task to run the functional tests
+val functionalTest by tasks.registering(Test::class) {
+    testClassesDirs = functionalTestSourceSet.output.classesDirs
+    classpath = functionalTestSourceSet.runtimeClasspath
+    useJUnitPlatform()
+}
+
+
 gradlePlugin {
-    //FIXME: change to th2-gradle-plugin
-    website.set("https://github.com/th2-net/th2-grade-plugin")
-    vcsUrl.set("https://github.com/th2-net/th2-grade-plugin.git")
+    website.set("https://github.com/th2-net/th2-gradle-plugin")
+    vcsUrl.set("https://github.com/th2-net/th2-gradle-plugin.git")
 
     val base by plugins.creating {
         id = "com.exactpro.th2.gradle.base"
@@ -50,24 +65,9 @@ gradlePlugin {
         tags.set(listOf("th2", "publish"))
         implementationClass = "com.exactpro.th2.gradle.PublishTh2Plugin"
     }
+
+    testSourceSets.add(functionalTestSourceSet)
 }
-
-// Add a source set for the functional test suite
-val functionalTestSourceSet: SourceSet = sourceSets.create("functionalTest") { }
-
-tasks.getByName("compileFunctionalTestKotlin").dependsOn(tasks.getByName("compileKotlin"))
-
-configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
-configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
-
-// Add a task to run the functional tests
-val functionalTest by tasks.registering(Test::class) {
-    testClassesDirs = functionalTestSourceSet.output.classesDirs
-    classpath = functionalTestSourceSet.runtimeClasspath
-    useJUnitPlatform()
-}
-
-gradlePlugin.testSourceSets.add(functionalTestSourceSet)
 
 tasks.named<Task>("check") {
     // Run the functional tests as part of `check`
