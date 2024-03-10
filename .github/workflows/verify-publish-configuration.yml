@@ -17,7 +17,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: wrapper
-      - name: Run publishPlugins verification with Gradle
+      - name: Validate Gradle portal publication configuration
         run: >
           ./gradlew clean publishPlugins --info --validate-only
           -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }}

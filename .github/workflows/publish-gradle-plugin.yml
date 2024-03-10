@@ -19,7 +19,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: wrapper
-      - name: Run publishPlugins with Gradle
+      - name: Publish plugins to Gradle portal
         run: >
           ./gradlew clean build publishPlugins --info
           -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }}
