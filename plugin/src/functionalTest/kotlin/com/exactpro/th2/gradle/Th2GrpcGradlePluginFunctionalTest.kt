@@ -215,9 +215,4 @@ class Th2GrpcGradlePluginFunctionalTest {
         )
     }
 
-    private fun assertFileExist(file: File) {
-        assertTrue(file.exists(), "file '$file' does not exist")
-    }
 }
-
-private operator fun File.div(path: String): File = resolve(path)

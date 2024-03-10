@@ -1,5 +1,4 @@
 plugins {
-    // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
     `java-gradle-plugin`
     `kotlin-dsl`
     kotlin("jvm") version "1.8.20"
@@ -7,7 +6,6 @@ plugins {
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
     mavenCentral()
     gradlePluginPortal()
 }
@@ -20,6 +18,8 @@ dependencies {
     implementation("com.gorylenko.gradle-git-properties:gradle-git-properties:2.4.1")
 
     implementation("org.owasp:dependency-check-gradle:8.4.1")
+
+    implementation("com.palantir.gradle.docker:gradle-docker:0.36.0")
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
@@ -71,6 +71,14 @@ gradlePlugin {
         description = "Plugin helps you configure your project to publish maven artifacts to sonatype"
         tags.set(listOf("th2", "publish"))
         implementationClass = "com.exactpro.th2.gradle.PublishTh2Plugin"
+    }
+
+    val component by plugins.creating {
+        id = "com.exactpro.th2.gradle.component"
+        displayName = "Plugin packaging th2 component"
+        description = "Plugin helps to package th2 component and prepare it for building docker image"
+        tags.set(listOf("th2", "docker"))
+        implementationClass = "com.exactpro.th2.gradle.ComponentTh2Plugin"
     }
 
     testSourceSets.add(functionalTestSourceSet)
