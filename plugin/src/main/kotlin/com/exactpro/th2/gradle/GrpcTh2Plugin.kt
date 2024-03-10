@@ -7,6 +7,7 @@ import com.google.protobuf.gradle.id
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.getByName
@@ -20,10 +21,20 @@ class GrpcTh2Plugin : Plugin<Project> {
                 project.pluginManager.apply(BaseTh2Plugin::class.java)
             }
         }
+        checkJavaLibraryPlugin(project)
         project.pluginManager.apply(ProtobufPlugin::class.java)
         val protobufExtension = project.the<ProtobufExtension>()
         applyProtobufPlugin(protobufExtension)
         configureJavaPlugin(project, protobufExtension)
+    }
+
+    private fun checkJavaLibraryPlugin(project: Project) {
+        if (!project.plugins.hasPlugin(JavaLibraryPlugin::class.java)) {
+            if (project.plugins.hasPlugin(JavaPlugin::class.java)) {
+                error("java-library plugin must be applied to the project with gRPC but a different one was")
+            }
+            project.pluginManager.apply(JavaLibraryPlugin::class.java)
+        }
     }
 
     private fun applyProtobufPlugin(protobufExtension: ProtobufExtension) {
