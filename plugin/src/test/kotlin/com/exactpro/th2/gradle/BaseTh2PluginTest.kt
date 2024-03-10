@@ -3,7 +3,9 @@ package com.exactpro.th2.gradle
 import com.github.jk1.license.LicenseReportPlugin
 import com.gorylenko.GitPropertiesPlugin
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
@@ -50,5 +52,18 @@ internal class BaseTh2PluginTest {
                 assertNotNull(bom, "bom not found")
             }
         )
+    }
+
+    @Test
+    fun `reports error if applied not to the root project`() {
+        val root = ProjectBuilder.builder()
+            .build()
+        val subProject = ProjectBuilder.builder()
+            .withParent(root)
+            .build()
+
+        assertThrows<Exception> {
+            subProject.pluginManager.apply(BaseTh2Plugin::class.java)
+        }
     }
 }

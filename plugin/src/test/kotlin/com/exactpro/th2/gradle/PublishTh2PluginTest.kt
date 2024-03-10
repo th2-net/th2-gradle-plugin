@@ -10,8 +10,8 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -75,6 +75,19 @@ internal class PublishTh2PluginTest {
                         "not task to close and release sonatype staging repository")
                 }
             )
+        }
+    }
+
+    @Test
+    fun `reports error if applied not to the root project`() {
+        val root = ProjectBuilder.builder()
+            .build()
+        val subProject = ProjectBuilder.builder()
+            .withParent(root)
+            .build()
+
+        assertThrows<Exception> {
+            subProject.pluginManager.apply(PublishTh2Plugin::class.java)
         }
     }
 }
