@@ -22,8 +22,10 @@ dependencies {
     implementation("org.owasp:dependency-check-gradle:8.4.1")
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22")
 }
 
 // Add a source set for the functional test suite

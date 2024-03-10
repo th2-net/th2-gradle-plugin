@@ -1,6 +1,7 @@
 package com.exactpro.th2.gradle
 
 import org.gradle.api.Action
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
@@ -36,32 +37,59 @@ open class PublishTh2Extension @Inject constructor(
 }
 
 open class Pom @Inject constructor(
-    objectFactory: ObjectFactory,
+    project: Project,
 ) {
-    val vcsUrl: Property<String> = objectFactory.property()
+    val vcsUrl: Property<String> = project.objects.property<String>().apply {
+        set(
+            project.provider { project.findProperty("vcs_url") as? String }
+        )
+    }
 }
 
 open class Nexus @Inject constructor(
-    objectFactory: ObjectFactory,
+    project: Project,
 ) {
-    val url: Property<URI> = objectFactory.property()
+    val url: Property<URI> = project.objects.property<URI>().apply {
+        set(
+            project.provider {
+                (project.findProperty("nexus_url") as? String)?.let(URI::create)
+            }
+        )
+    }
 
-    val username: Property<String> = objectFactory.property()
+    val username: Property<String> = project.objects.property<String>().apply {
+        set(project.provider { project.findProperty("nexus_user") as? String })
+    }
 
-    val password: Property<String> = objectFactory.property()
+    val password: Property<String> = project.objects.property<String>().apply {
+        set(project.provider { project.findProperty("nexus_password") as? String })
+    }
 }
 
 open class Sonatype @Inject constructor(
-    objectFactory: ObjectFactory,
+    project: Project,
 ) {
-    val username: Property<String> = objectFactory.property()
+    val username: Property<String> = project.objects.property<String>().apply {
+        set(project.provider { project.findProperty("sonatypeUsername") as? String })
+    }
 
-    val password: Property<String> = objectFactory.property()
+    val password: Property<String> = project.objects.property<String>().apply {
+        set(project.provider { project.findProperty("sonatypePassword") as? String })
+    }
 }
-open class Signature @Inject constructor(
-    objectFactory: ObjectFactory,
-) {
-    val key: Property<String> = objectFactory.property()
 
-    val password: Property<String> = objectFactory.property()
+open class Signature @Inject constructor(
+    project: Project,
+) {
+    val key: Property<String> = project.objects.property<String>().apply {
+        set(
+            project.provider { project.findProperty("signingKey") as? String }
+        )
+    }
+
+    val password: Property<String> = project.objects.property<String>().apply {
+        set(
+            project.provider { project.findProperty("signingPassword") as? String }
+        )
+    }
 }

@@ -1,29 +1,54 @@
 package com.exactpro.th2.gradle
 
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.kotlin.dsl.getByType
+import com.github.jk1.license.LicenseReportPlugin
+import com.gorylenko.GitPropertiesPlugin
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
-import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 internal class BaseTh2PluginTest {
-    @Test
-    fun `applies required plugins`() {
+    @ParameterizedTest(name = "when {0} plugin applied")
+    @ValueSource(strings = ["java", "java-library", "org.jetbrains.kotlin.jvm"])
+    fun `applies required plugins`(javaPlugin: String) {
         val project = ProjectBuilder.builder()
             .build()
 
+        project.pluginManager.apply(javaPlugin)
         project.pluginManager.apply("com.exactpro.th2.gradle.base")
-
-        assertTrue(
-            project.plugins.hasPlugin(JavaPlugin::class.java),
-            "no java plugin applied",
-        )
-        assertTrue(
-            project.plugins.hasPlugin(DependencyCheckPlugin::class.java),
-            "no dependencies check plugin applied",
+        assertAll(
+            {
+                assertTrue(
+                    project.plugins.hasPlugin(DependencyCheckPlugin::class.java),
+                    "no dependencies check plugin applied",
+                )
+            },
+            {
+                assertTrue(
+                    project.plugins.hasPlugin(LicenseReportPlugin::class.java),
+                    "no license plugin applied",
+                )
+            },
+            {
+                assertTrue(
+                    project.plugins.hasPlugin(GitPropertiesPlugin::class.java),
+                    "no git properties plugin applied",
+                )
+            },
+            {
+                val bom = assertNotNull(
+                    project.configurations.findByName("implementation"),
+                    "no implementation configuration found",
+                ).allDependencies
+                    .find {
+                        it.group == "com.exactpro.th2" &&
+                                it.name == "bom"
+                    }
+                assertNotNull(bom, "bom not found")
+            }
         )
     }
 }

@@ -10,8 +10,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
@@ -25,6 +27,10 @@ internal const val EXACTPRO_SYSTEMS_LLC = "Exactpro Systems LLC"
 
 internal const val VENDOR_ID = "com.exactpro"
 
+internal const val TH2_BOM_COORDINATES = "com.exactpro.th2:bom:4.6.0"
+
+private const val BASE_EXTERNAL_CONFIGURATION_URL = "https://raw.githubusercontent.com/th2-net/.github/main"
+
 class BaseTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
         check(project == project.rootProject) {
@@ -34,16 +40,9 @@ class BaseTh2Plugin : Plugin<Project> {
         configureLicenseReport(project)
         configureGitProperties(project)
         lockDependencies(project)
-        if (project.subprojects.isEmpty()) {
-            project.afterEvaluate {
-                configureManifestInfo()
-            }
-        } else {
-            project.subprojects {
-                afterEvaluate {
-                    configureManifestInfo()
-                }
-            }
+        project.allprojects {
+            configureManifestInfo()
+            configureBomDependency()
         }
     }
 
@@ -74,7 +73,7 @@ class BaseTh2Plugin : Plugin<Project> {
 
             if (!licenseNormalizerBundlePath.exists()) {
                 DownloadAction(project).apply {
-                    src("https://raw.githubusercontent.com/th2-net/.github/main/license-compliance/gradle-license-report/license-normalizer-bundle.json")
+                    src("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/license-normalizer-bundle.json")
                     dest(licenseNormalizerBundlePath)
                     overwrite(false)
                 }.execute().get()
@@ -83,7 +82,7 @@ class BaseTh2Plugin : Plugin<Project> {
             filters = arrayOf(LicenseBundleNormalizer(licenseNormalizerBundlePath.path, false))
             renderers = arrayOf(JsonReportRenderer("licenses.json", false))
             excludeOwnGroup = true
-            allowedLicensesFile = URI("https://raw.githubusercontent.com/th2-net/.github/main/license-compliance/gradle-license-report/allowed-licenses.json")
+            allowedLicensesFile = URI("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/allowed-licenses.json")
         }
     }
 
@@ -109,6 +108,17 @@ class BaseTh2Plugin : Plugin<Project> {
                     )
                 }
             }
+        }
+    }
+    private fun Project.configureBomDependency() {
+        // only if we have Java plugin applied
+        plugins.withType<JavaPlugin> {
+            val project = this@configureBomDependency
+            project.dependencies
+                .add(
+                    JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
+                    project.dependencies.platform(TH2_BOM_COORDINATES),
+                )
         }
     }
 }
