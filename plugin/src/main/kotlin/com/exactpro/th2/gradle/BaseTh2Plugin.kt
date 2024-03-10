@@ -23,13 +23,14 @@ private const val JAVA_VERSION_PROP = "java.version"
 
 private const val JAVA_VENDOR_PROP = "java.vendor"
 
+private const val BASE_EXTERNAL_CONFIGURATION_URL = "https://raw.githubusercontent.com/th2-net/.github/main"
+
 internal const val EXACTPRO_SYSTEMS_LLC = "Exactpro Systems LLC"
 
 internal const val VENDOR_ID = "com.exactpro"
 
+// We need to find out the way to specify this somewhere in the build script
 internal const val TH2_BOM_COORDINATES = "com.exactpro.th2:bom:4.6.0"
-
-private const val BASE_EXTERNAL_CONFIGURATION_URL = "https://raw.githubusercontent.com/th2-net/.github/main"
 
 class BaseTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
