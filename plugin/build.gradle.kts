@@ -1,9 +1,12 @@
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     alias(libs.plugins.kotlin)
     alias(libs.plugins.gradle.publish)
     alias(libs.plugins.build.config)
+    alias(libs.plugins.ktlint)
 }
 
 repositories {
@@ -106,4 +109,15 @@ buildConfig {
     buildConfigField("PROTOC", libs.protoc.get().toString())
     buildConfigField("GRPC_PLUGIN", libs.grpc.protoc.plugin.get().toString())
     buildConfigField("SERVICE_GENERATOR_PLUGIN", libs.grpc.service.generator.get().toString())
+}
+
+ktlint {
+    debug.set(true)
+    version.set(libs.versions.ktlint)
+    reporters {
+        reporter(ReporterType.HTML)
+    }
+    filter {
+        exclude("**/com/exactpro/th2/gradle/config/Libraries.kt")
+    }
 }
