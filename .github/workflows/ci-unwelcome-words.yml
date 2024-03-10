@@ -10,7 +10,15 @@ jobs:
     - uses: actions/checkout@v3
       with:
         ref: ${{ github.sha }}
+    # All the below is required because the repository with the action is private
+    - name: Checkout tool
+      uses: actions/checkout@v3
+      with:
+        repository: th2-net/ci-github-action
+        ref: master
+        token: ${{ secrets.PAT_CI_ACTION }}
+        path: ci-github-action
     - name: Run CI action
-      uses: th2-net/ci-github-action@master
+      uses: ./ci-github-action
       with:
         ref: ${{ github.sha }}
