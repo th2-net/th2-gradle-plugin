@@ -3,6 +3,7 @@ plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin)
     alias(libs.plugins.gradle.publish)
+    alias(libs.plugins.build.config)
 }
 
 repositories {
@@ -92,4 +93,18 @@ tasks.named<Task>("check") {
 tasks.named<Test>("test") {
     // Use JUnit Jupiter for unit tests.
     useJUnitPlatform()
+}
+
+buildConfig {
+    generateAtSync.set(false)
+    packageName.set("com.exactpro.th2.gradle.config")
+    className.set("Libraries")
+    useKotlinOutput {
+        internalVisibility = true
+    }
+
+    buildConfigField("TH2_BOM", libs.th2.bom.get().toString())
+    buildConfigField("PROTOC", libs.protoc.get().toString())
+    buildConfigField("GRPC_PLUGIN", libs.grpc.protoc.plugin.get().toString())
+    buildConfigField("SERVICE_GENERATOR_PLUGIN", libs.grpc.service.generator.get().toString())
 }

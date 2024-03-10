@@ -1,5 +1,6 @@
 package com.exactpro.th2.gradle
 
+import com.exactpro.th2.gradle.config.Libraries
 import com.github.jk1.license.LicenseReportExtension
 import com.github.jk1.license.LicenseReportPlugin
 import com.github.jk1.license.filter.LicenseBundleNormalizer
@@ -28,9 +29,6 @@ private const val BASE_EXTERNAL_CONFIGURATION_URL = "https://raw.githubuserconte
 internal const val EXACTPRO_SYSTEMS_LLC = "Exactpro Systems LLC"
 
 internal const val VENDOR_ID = "com.exactpro"
-
-// We need to find out the way to specify this somewhere in the build script
-internal const val TH2_BOM_COORDINATES = "com.exactpro.th2:bom:4.6.0"
 
 class BaseTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -118,7 +116,7 @@ class BaseTh2Plugin : Plugin<Project> {
             project.dependencies
                 .add(
                     JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
-                    project.dependencies.platform(TH2_BOM_COORDINATES),
+                    project.dependencies.platform(Libraries.TH2_BOM),
                 )
         }
     }

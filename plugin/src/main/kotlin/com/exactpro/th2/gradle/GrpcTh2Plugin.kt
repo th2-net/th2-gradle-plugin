@@ -1,5 +1,6 @@
 package com.exactpro.th2.gradle
 
+import com.exactpro.th2.gradle.config.Libraries
 import com.google.protobuf.gradle.GenerateProtoTask
 import com.google.protobuf.gradle.ProtobufExtension
 import com.google.protobuf.gradle.ProtobufPlugin
@@ -70,7 +71,7 @@ class GrpcTh2Plugin : Plugin<Project> {
             impl("io.grpc:grpc-core")
             impl("io.grpc:grpc-netty")
             impl("javax.annotation:javax.annotation-api:1.3.2")
-            impl(SERVICES_GENERATOR_ARTIFACT)
+            impl(Libraries.SERVICE_GENERATOR_PLUGIN)
         }
     }
 
@@ -100,14 +101,14 @@ class GrpcTh2Plugin : Plugin<Project> {
 
     private fun ProtobufExtension.configureProtobufExtension() {
         protoc {
-            artifact = PROTOC_ARTIFACT
+            artifact = Libraries.PROTOC
         }
         plugins {
             id("grpc") {
-                artifact = GRPC_ARTIFACT
+                artifact = Libraries.GRPC_PLUGIN
             }
             id("services") {
-                artifact = "$SERVICES_GENERATOR_ARTIFACT:all@jar"
+                artifact = "${Libraries.SERVICE_GENERATOR_PLUGIN}:all@jar"
             }
         }
         generateProtoTasks {
@@ -124,11 +125,5 @@ class GrpcTh2Plugin : Plugin<Project> {
             }
             ofSourceSet("main")
         }
-    }
-
-    companion object {
-        private const val PROTOC_ARTIFACT = "com.google.protobuf:protoc:3.25.3"
-        private const val GRPC_ARTIFACT = "io.grpc:protoc-gen-grpc-java:1.62.2"
-        private const val SERVICES_GENERATOR_ARTIFACT = "com.exactpro.th2:grpc-service-generator:3.5.1"
     }
 }
