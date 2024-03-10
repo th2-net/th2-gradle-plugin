@@ -9,7 +9,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class Th2PublishGradlePluginFunctionalTest {
-
     @field:TempDir
     lateinit var projectDir: File
 
@@ -41,16 +40,17 @@ class Th2PublishGradlePluginFunctionalTest {
                 password.set("pwd")
               }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // Run the build
-        val result = GradleRunner.create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withProjectDir(projectDir)
-            .withArguments("--stacktrace", "tasks")
-            .build()
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments("--stacktrace", "tasks")
+                .build()
 
         // Verify the result
         assertAll(
@@ -62,7 +62,7 @@ class Th2PublishGradlePluginFunctionalTest {
             },
             {
                 result.assertHasTask("closeAndReleaseSonatypeStagingRepository")
-            }
+            },
         )
     }
 
@@ -77,24 +77,25 @@ class Th2PublishGradlePluginFunctionalTest {
                 id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // Run the build
-        val result = GradleRunner.create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withProjectDir(projectDir)
-            .withEnvironment(
-                mapOf(
-                    "ORG_GRADLE_PROJECT_sonatypeUsername" to "user",
-                    "ORG_GRADLE_PROJECT_sonatypePassword" to "pwd",
-                    "ORG_GRADLE_PROJECT_signingKey" to "signKey",
-                    "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withEnvironment(
+                    mapOf(
+                        "ORG_GRADLE_PROJECT_sonatypeUsername" to "user",
+                        "ORG_GRADLE_PROJECT_sonatypePassword" to "pwd",
+                        "ORG_GRADLE_PROJECT_signingKey" to "signKey",
+                        "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
+                    ),
                 )
-            )
-            .withArguments("--stacktrace", "tasks")
-            .build()
+                .withArguments("--stacktrace", "tasks")
+                .build()
 
         // Verify the result
         assertAll(
@@ -106,7 +107,7 @@ class Th2PublishGradlePluginFunctionalTest {
             },
             {
                 result.assertHasTask("closeAndReleaseSonatypeStagingRepository")
-            }
+            },
         )
     }
 

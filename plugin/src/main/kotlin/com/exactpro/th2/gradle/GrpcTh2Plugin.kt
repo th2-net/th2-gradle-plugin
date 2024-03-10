@@ -62,6 +62,7 @@ class GrpcTh2Plugin : Plugin<Project> {
     private fun DependencyHandler.impl(notation: Any) {
         add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, notation)
     }
+
     private fun configureJavaDependencies(project: Project) {
         project.dependencies.apply {
             api("com.google.protobuf:protobuf-java-util")
@@ -77,6 +78,7 @@ class GrpcTh2Plugin : Plugin<Project> {
 
     private fun configureJavaTaskDependencies(project: Project) {
         val generateProtoTask = project.tasks.getByName<GenerateProtoTask>("generateProto")
+
         fun addDependency(taskName: String) {
             project.tasks.findByName(taskName)?.dependsOn(generateProtoTask)
         }
@@ -92,7 +94,7 @@ class GrpcTh2Plugin : Plugin<Project> {
             getByName("main") {
                 resources {
                     srcDirs(
-                        "${protobufExtension.generatedFilesBaseDir}/main/services/resources"
+                        "${protobufExtension.generatedFilesBaseDir}/main/services/resources",
                     )
                 }
             }

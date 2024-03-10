@@ -8,7 +8,6 @@ import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class Th2GrpcGradlePluginFunctionalTest {
     @field:TempDir(cleanup = CleanupMode.ON_SUCCESS)
@@ -38,29 +37,31 @@ class Th2GrpcGradlePluginFunctionalTest {
                     url 'https://s01.oss.sonatype.org/content/repositories/releases/'
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         projectDir.writeProtoFile()
 
-        val result = GradleRunner.create()
-            .forwardOutput()
-            .withDebug(true)
-            .withPluginClasspath()
-            .withProjectDir(projectDir)
-            .withArguments(
-                "--stacktrace",
-                ":build",
-                "-x",
-                ":generateGitProperties", // because no git repository exist in test
-            )
-            .build()
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    ":build",
+                    // because no git repository exist in test
+                    "-x",
+                    ":generateGitProperties",
+                )
+                .build()
 
         val buildDirectory = projectDir / "build"
 
         assertAll(
             { assertEquals(TaskOutcome.SUCCESS, result.task(":generateProto")?.outcome, "generateProto executed") },
             { assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava")?.outcome, "compileJava executed") },
-            { assertAllSourcesGenerated(buildDirectory) }
+            { assertAllSourcesGenerated(buildDirectory) },
         )
     }
 
@@ -68,16 +69,17 @@ class Th2GrpcGradlePluginFunctionalTest {
     fun `proto and grpc are generated when applied to sub-project`() {
         val subProject = projectDir.resolve("grpc")
         val buildFile = projectDir.resolve("build.gradle")
-        val subProjectBuildFile = subProject
-            .also { it.mkdirs() }
-            .resolve("build.gradle")
+        val subProjectBuildFile =
+            subProject
+                .also { it.mkdirs() }
+                .resolve("build.gradle")
         val settingsFile = projectDir.resolve("settings.gradle")
 
         settingsFile.writeText(
             """
             rootProject.name = "test"
             include(":grpc")
-            """.trimIndent()
+            """.trimIndent(),
         )
         buildFile.writeText(
             """
@@ -99,7 +101,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                     }
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         subProjectBuildFile.writeText(
             """
@@ -107,40 +109,43 @@ class Th2GrpcGradlePluginFunctionalTest {
                 id('java-library')
                 id('com.exactpro.th2.gradle.grpc')
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         subProject.writeProtoFile()
 
-        val result = GradleRunner.create()
-            .forwardOutput()
-            .withDebug(true)
-            .withPluginClasspath()
-            .withProjectDir(projectDir)
-            .withArguments(
-                "--stacktrace",
-                "build",
-                "-x",
-                "generateGitProperties", // because no git repository exist in test
-            )
-            .build()
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    "build",
+                    // because no git repository exist in test
+                    "-x",
+                    "generateGitProperties",
+                )
+                .build()
 
         val buildDirectory = subProject / "build"
 
         assertAll(
             { assertEquals(TaskOutcome.SUCCESS, result.task(":grpc:generateProto")?.outcome, "generateProto executed") },
             { assertEquals(TaskOutcome.SUCCESS, result.task(":grpc:compileJava")?.outcome, "compileJava executed") },
-            { assertAllSourcesGenerated(buildDirectory) }
+            { assertAllSourcesGenerated(buildDirectory) },
         )
     }
 
     private fun File.writeProtoFile() {
-        val protoFile = resolve("src")
-            .resolve("main")
-            .resolve("proto")
-            .also {
-                it.mkdirs()
-            }
-            .resolve("test.proto")
+        val protoFile =
+            resolve("src")
+                .resolve("main")
+                .resolve("proto")
+                .also {
+                    it.mkdirs()
+                }
+                .resolve("test.proto")
 
         protoFile.writeText(
             """
@@ -154,7 +159,7 @@ class Th2GrpcGradlePluginFunctionalTest {
             }
             
             message TestClass {}
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -172,7 +177,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                     },
                     {
                         assertFileExist(metaInf / "services" / "com.exactpro.th2.test.grpc.TestService")
-                    }
+                    },
                 )
             },
             {
@@ -211,8 +216,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                         { assertFileExist(resolve("test_service.py")) },
                     )
                 }
-            }
+            },
         )
     }
-
 }

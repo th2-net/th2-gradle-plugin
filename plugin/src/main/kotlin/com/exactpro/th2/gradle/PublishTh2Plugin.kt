@@ -13,7 +13,6 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningExtension
@@ -47,7 +46,10 @@ class PublishTh2Plugin : Plugin<Project> {
         configureSingingPlugin(project, extension)
     }
 
-    private fun configureSonatypeNexusPublishPlugin(project: Project, extension: PublishTh2Extension) {
+    private fun configureSonatypeNexusPublishPlugin(
+        project: Project,
+        extension: PublishTh2Extension,
+    ) {
         project.afterEvaluate {
             // This causes the following:
             // If username and password neither configured via gradle.build nor properties
@@ -71,7 +73,10 @@ class PublishTh2Plugin : Plugin<Project> {
         }
     }
 
-    private fun configureSingingPlugin(project: Project, extension: PublishTh2Extension) {
+    private fun configureSingingPlugin(
+        project: Project,
+        extension: PublishTh2Extension,
+    ) {
         project.rootProject.allprojects.forEach { subProj ->
             project.afterEvaluate {
                 if (!extension.signature.run { key.isPresent && password.isPresent }) {
@@ -88,7 +93,10 @@ class PublishTh2Plugin : Plugin<Project> {
         }
     }
 
-    private fun configurePublishPlugins(project: Project, extension: PublishTh2Extension) {
+    private fun configurePublishPlugins(
+        project: Project,
+        extension: PublishTh2Extension,
+    ) {
         project.rootProject.allprojects.forEach { subProj ->
             subProj.afterEvaluate {
                 plugins.withType<MavenPublishPlugin> {
@@ -105,9 +113,11 @@ class PublishTh2Plugin : Plugin<Project> {
         }
     }
 
-    private fun configurePublishingExtension(project: Project, extension: PublishTh2Extension) {
+    private fun configurePublishingExtension(
+        project: Project,
+        extension: PublishTh2Extension,
+    ) {
         project.the<PublishingExtension>().apply {
-
             publications {
                 create<MavenPublication>(PUBLISHING_EXTENSION) {
                     project.plugins.withType<JavaPlugin> {
@@ -146,7 +156,7 @@ class PublishTh2Plugin : Plugin<Project> {
             }
 
             repositories {
-                //Nexus repo to publish from gitlab
+                // Nexus repo to publish from gitlab
                 val nexus = extension.nexus
                 if (nexus.url.isPresent) {
                     maven {
@@ -166,7 +176,10 @@ class PublishTh2Plugin : Plugin<Project> {
     /**
      * Must be called after evaluation
      */
-    private fun configureSigningExtension(project: Project, extension: PublishTh2Extension) {
+    private fun configureSigningExtension(
+        project: Project,
+        extension: PublishTh2Extension,
+    ) {
         project.the<SigningExtension>().apply {
             useInMemoryPgpKeys(extension.signature.key.get(), extension.signature.password.get())
             sign(project.the<PublishingExtension>().publications.getByName(PUBLISHING_EXTENSION))

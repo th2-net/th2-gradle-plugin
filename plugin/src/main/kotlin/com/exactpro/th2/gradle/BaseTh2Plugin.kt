@@ -14,7 +14,6 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
-import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
@@ -102,13 +101,14 @@ class BaseTh2Plugin : Plugin<Project> {
                             "Implementation-Title" to this@configureManifestInfo.name,
                             "Implementation-Vendor" to EXACTPRO_SYSTEMS_LLC,
                             "Implementation-Vendor-Id" to VENDOR_ID,
-                            "Implementation-Version" to this@configureManifestInfo.version
-                        )
+                            "Implementation-Version" to this@configureManifestInfo.version,
+                        ),
                     )
                 }
             }
         }
     }
+
     private fun Project.configureBomDependency() {
         // only if we have Java plugin applied
         plugins.withType<JavaPlugin> {

@@ -19,8 +19,9 @@ import kotlin.test.assertTrue
 internal class PublishTh2PluginTest {
     @Test
     fun `applies required plugins`() {
-        val project = ProjectBuilder.builder()
-            .build()
+        val project =
+            ProjectBuilder.builder()
+                .build()
 
         project.pluginManager.apply("java")
         project.pluginManager.apply("maven-publish")
@@ -67,24 +68,30 @@ internal class PublishTh2PluginTest {
                     )
                 },
                 {
-                    assertNotNull(tasks.findByName("publishMavenJavaPublicationToSonatypeRepository"),
-                        "not task to publish to sonatype")
+                    assertNotNull(
+                        tasks.findByName("publishMavenJavaPublicationToSonatypeRepository"),
+                        "not task to publish to sonatype",
+                    )
                 },
                 {
-                    assertNotNull(tasks.findByName("closeAndReleaseSonatypeStagingRepository"),
-                        "not task to close and release sonatype staging repository")
-                }
+                    assertNotNull(
+                        tasks.findByName("closeAndReleaseSonatypeStagingRepository"),
+                        "not task to close and release sonatype staging repository",
+                    )
+                },
             )
         }
     }
 
     @Test
     fun `reports error if applied not to the root project`() {
-        val root = ProjectBuilder.builder()
-            .build()
-        val subProject = ProjectBuilder.builder()
-            .withParent(root)
-            .build()
+        val root =
+            ProjectBuilder.builder()
+                .build()
+        val subProject =
+            ProjectBuilder.builder()
+                .withParent(root)
+                .build()
 
         assertThrows<Exception> {
             subProject.pluginManager.apply(PublishTh2Plugin::class.java)

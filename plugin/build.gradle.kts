@@ -45,7 +45,6 @@ val functionalTest by tasks.registering(Test::class) {
     useJUnitPlatform()
 }
 
-
 gradlePlugin {
     website.set("https://github.com/th2-net/th2-gradle-plugin")
     vcsUrl.set("https://github.com/th2-net/th2-gradle-plugin.git")

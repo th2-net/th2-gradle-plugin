@@ -13,8 +13,9 @@ import kotlin.test.assertTrue
 class ComponentTh2PluginTest {
     @Test
     fun `applies all required plugins`() {
-        val project = ProjectBuilder.builder()
-            .build()
+        val project =
+            ProjectBuilder.builder()
+                .build()
         project.pluginManager.apply(ComponentTh2Plugin::class.java)
 
         assertAll(
@@ -43,7 +44,7 @@ class ComponentTh2PluginTest {
                     project.the<JavaApplication>().applicationName,
                     "unexpected application name",
                 )
-            }
+            },
         )
     }
 }

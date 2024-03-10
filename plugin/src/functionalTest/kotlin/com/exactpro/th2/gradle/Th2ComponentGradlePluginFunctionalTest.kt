@@ -20,7 +20,7 @@ class Th2ComponentGradlePluginFunctionalTest {
         settingsFile.writeText(
             """
             rootProject.name = "test"
-            """.trimIndent()
+            """.trimIndent(),
         )
         buildFile.writeText(
             """
@@ -44,21 +44,23 @@ class Th2ComponentGradlePluginFunctionalTest {
             application {
                 mainClass.set('test.Main')
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
-        val result = GradleRunner.create()
-            .forwardOutput()
-            .withDebug(true)
-            .withPluginClasspath()
-            .withProjectDir(projectDir)
-            .withArguments(
-                "--stacktrace",
-                "dockerPrep",
-                "-x",
-                "generateGitProperties", // because no git repository exist in test
-            )
-            .build()
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    "dockerPrep",
+                    // because no git repository exist in test
+                    "-x",
+                    "generateGitProperties",
+                )
+                .build()
 
         val buildDirectory = projectDir / "build"
         val dockerDirectory = buildDirectory / "docker"
