@@ -56,7 +56,7 @@ class GrpcTh2Plugin : Plugin<Project> {
             getByName("main") {
                 resources {
                     srcDirs(
-                        "${protobufExtension.generatedFilesBaseDir}/main/services/java/resources"
+                        "${protobufExtension.generatedFilesBaseDir}/main/services/resources"
                     )
                 }
             }
@@ -80,9 +80,9 @@ class GrpcTh2Plugin : Plugin<Project> {
                 it.plugins {
                     id("grpc") {}
                     id("services") {
-                        this.option("javaInterfacesPath=./java/src")
-                        this.option("javaInterfacesImplPath=./java/src")
-                        this.option("javaMetaInfPath=./java/resources")
+                        this.option("javaInterfacesPath=.")
+                        this.option("javaInterfacesImplPath=.")
+                        this.option("javaMetaInfPath=./resources")
                         this.option("pythonPath=./python")
                     }
                 }
