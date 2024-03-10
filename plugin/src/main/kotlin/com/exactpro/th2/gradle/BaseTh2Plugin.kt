@@ -34,7 +34,7 @@ internal const val TH2_BOM_COORDINATES = "com.exactpro.th2:bom:4.6.0"
 
 class BaseTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
-        check(project == project.rootProject) {
+        check(project === project.rootProject) {
             "th2 base plugin must be applied to the root project"
         }
         configureOwasp(project)

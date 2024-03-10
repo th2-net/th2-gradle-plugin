@@ -34,7 +34,7 @@ private const val JAVA_COMPONENT_NAME = JvmConstants.JAVA_COMPONENT_NAME
 
 class PublishTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
-        check(project == project.rootProject) {
+        check(project === project.rootProject) {
             "th2 publish plugin must be applied to the root project but was applied to ${project.path}"
         }
         if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {

@@ -15,9 +15,9 @@ import org.gradle.kotlin.dsl.withType
 
 class GrpcTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
-        with(project.rootProject) {
-            if (!plugins.hasPlugin(BaseTh2Plugin::class.java)) {
-                pluginManager.apply(BaseTh2Plugin::class.java)
+        if (project === project.rootProject) {
+            if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
+                project.pluginManager.apply(BaseTh2Plugin::class.java)
             }
         }
         project.pluginManager.apply(ProtobufPlugin::class.java)
