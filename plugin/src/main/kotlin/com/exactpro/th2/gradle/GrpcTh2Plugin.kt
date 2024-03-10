@@ -12,8 +12,6 @@ import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 
-private const val TH2_GRPC_EXTENSION = "th2Grpc"
-
 class GrpcTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
         if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
@@ -21,14 +19,12 @@ class GrpcTh2Plugin : Plugin<Project> {
         }
         project.pluginManager.apply(ProtobufPlugin::class.java)
         val protobufExtension = project.the<ProtobufExtension>()
-        applyProtobufPlugin(project, protobufExtension)
+        applyProtobufPlugin(protobufExtension)
         configureJavaPlugin(project, protobufExtension)
     }
 
-    private fun applyProtobufPlugin(project: Project, protobufExtension: ProtobufExtension) {
-        project.beforeEvaluate {
-            protobufExtension.configureProtobufExtension()
-        }
+    private fun applyProtobufPlugin(protobufExtension: ProtobufExtension) {
+        protobufExtension.configureProtobufExtension()
     }
 
     private fun configureJavaPlugin(
@@ -78,20 +74,20 @@ class GrpcTh2Plugin : Plugin<Project> {
             id("services") {
                 artifact = "$SERVICES_GENERATOR_ARTIFACT:3.4.0:all@jar"
             }
-
-            generateProtoTasks {
-                ofSourceSet("main").forEach {
-                    it.plugins {
-                        id("grpc") {}
-                        id("services") {
-                            this.option("javaInterfacesPath=./java/src")
-                            this.option("javaInterfacesImplPath=./java/src")
-                            this.option("javaMetaInfPath=./java/resources")
-                            this.option("pythonPath=./python")
-                        }
+        }
+        generateProtoTasks {
+            all().forEach {
+                it.plugins {
+                    id("grpc") {}
+                    id("services") {
+                        this.option("javaInterfacesPath=./java/src")
+                        this.option("javaInterfacesImplPath=./java/src")
+                        this.option("javaMetaInfPath=./java/resources")
+                        this.option("pythonPath=./python")
                     }
                 }
             }
+//            ofSourceSet("main")
         }
     }
 
