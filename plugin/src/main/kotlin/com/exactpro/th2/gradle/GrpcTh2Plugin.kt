@@ -6,6 +6,7 @@ import com.google.protobuf.gradle.ProtobufPlugin
 import com.google.protobuf.gradle.id
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.getByName
@@ -14,8 +15,10 @@ import org.gradle.kotlin.dsl.withType
 
 class GrpcTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
-        if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
-            project.pluginManager.apply(BaseTh2Plugin::class.java)
+        with(project.rootProject) {
+            if (!plugins.hasPlugin(BaseTh2Plugin::class.java)) {
+                pluginManager.apply(BaseTh2Plugin::class.java)
+            }
         }
         project.pluginManager.apply(ProtobufPlugin::class.java)
         val protobufExtension = project.the<ProtobufExtension>()
@@ -33,9 +36,30 @@ class GrpcTh2Plugin : Plugin<Project> {
     ) {
         project.plugins.withType<JavaPlugin> {
             addResources(project, protobufExtension)
+            configureJavaDependencies(project)
+            project.afterEvaluate {
+                configureJavaTaskDependencies(project)
+            }
         }
-        project.afterEvaluate {
-            configureJavaTaskDependencies(project)
+    }
+
+    private fun DependencyHandler.api(notation: Any) {
+        add(JavaPlugin.API_CONFIGURATION_NAME, notation)
+    }
+
+    private fun DependencyHandler.impl(notation: Any) {
+        add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, notation)
+    }
+    private fun configureJavaDependencies(project: Project) {
+        project.dependencies.apply {
+            api("com.google.protobuf:protobuf-java-util")
+            api("io.grpc:grpc-stub")
+
+            impl("io.grpc:grpc-protobuf")
+            impl("io.grpc:grpc-core")
+            impl("io.grpc:grpc-netty")
+            impl("javax.annotation:javax.annotation-api:1.3.2")
+            impl(SERVICES_GENERATOR_ARTIFACT)
         }
     }
 
@@ -65,14 +89,14 @@ class GrpcTh2Plugin : Plugin<Project> {
 
     private fun ProtobufExtension.configureProtobufExtension() {
         protoc {
-            artifact = "$PROTOC_ARTIFACT:3.23.2"
+            artifact = PROTOC_ARTIFACT
         }
         plugins {
             id("grpc") {
-                artifact = "$GRPC_ARTIFACT:1.56.0"
+                artifact = GRPC_ARTIFACT
             }
             id("services") {
-                artifact = "$SERVICES_GENERATOR_ARTIFACT:3.4.0:all@jar"
+                artifact = "$SERVICES_GENERATOR_ARTIFACT:all@jar"
             }
         }
         generateProtoTasks {
@@ -87,13 +111,13 @@ class GrpcTh2Plugin : Plugin<Project> {
                     }
                 }
             }
-//            ofSourceSet("main")
+            ofSourceSet("main")
         }
     }
 
     companion object {
-        private const val PROTOC_ARTIFACT = "com.google.protobuf:protoc"
-        private const val GRPC_ARTIFACT = "io.grpc:protoc-gen-grpc-java"
-        private const val SERVICES_GENERATOR_ARTIFACT = "com.exactpro.th2:grpc-service-generator"
+        private const val PROTOC_ARTIFACT = "com.google.protobuf:protoc:3.25.3"
+        private const val GRPC_ARTIFACT = "io.grpc:protoc-gen-grpc-java:1.62.2"
+        private const val SERVICES_GENERATOR_ARTIFACT = "com.exactpro.th2:grpc-service-generator:3.5.1"
     }
 }
