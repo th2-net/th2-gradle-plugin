@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle-version: ['7', '8', 'wrapper']
+        gradle-version: ['7.6.4', '8.6', 'wrapper']
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
