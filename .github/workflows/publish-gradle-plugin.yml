@@ -1,0 +1,105 @@
+name: publish gradle plugin
+
+on:
+  workflow_dispatch:
+
+env:
+  VERSION_FILE: gradle.properties
+  VERSION_PATTERN: '(?<=version=).+'
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      CURRENT_VERSION: ${{ steps.versions.outputs.CURRENT_VERSION }}
+      NEXT_VERSION: ${{ steps.versions.outputs.NEXT_VERSION }}
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+      - name: Get version
+        id: versions
+        uses: HardNorth/github-version-generate@v1.4.0
+        with:
+          version-source: file
+          version-file: ${{ env.VERSION_FILE }}
+          version-file-extraction-pattern: ${{ env.VERSION_PATTERN }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v2
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+      - name: Publish plugins to Gradle portal
+        run: >
+          ./gradlew clean build publishPlugins --info
+          -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }}
+          -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
+  create-release:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - version
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+      - name: Store SHA of HEAD commit on ENV
+        run: echo "GIT_HEAD=$(git rev-parse HEAD)" >> $GITHUB_ENV
+      - name: Create tag
+        id: create_tag
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const {GIT_HEAD} = process.env
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ needs.version.outputs.CURRENT_VERSION }}",
+              sha: `${GIT_HEAD}`
+            })
+
+      - name: Build changelog
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          toTag: ${{ needs.version.outputs.CURRENT_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          body: ${{ steps.build_changelog.outputs.changelog }}
+          name: Release ${{ needs.version.outputs.CURRENT_VERSION }}
+          tag: ${{ needs.version.outputs.CURRENT_VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+  update-version:
+    runs-on: ubuntu-latest
+    needs:
+      - create-release
+      - version
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare next dev version
+        id: prepare_next_dev
+        run: |
+          sed -i -e 's/${{ needs.version.outputs.CURRENT_VERSION }}/${{ needs.version.outputs.NEXT_VERSION }}/g' gradle.properties
+      - name: Commit next dev version
+        id: commit_next_dev
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "['gradle.properties', 'README.md']"
+          default_author: github_actions
+          message: "Prepare next version"
