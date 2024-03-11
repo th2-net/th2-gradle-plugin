@@ -46,6 +46,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                 .forwardOutput()
                 .withDebug(true)
                 .withPluginClasspath()
+                .withConfiguredVersion()
                 .withProjectDir(projectDir)
                 .withArguments(
                     "--stacktrace",
@@ -118,6 +119,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                 .forwardOutput()
                 .withDebug(true)
                 .withPluginClasspath()
+                .withConfiguredVersion()
                 .withProjectDir(projectDir)
                 .withArguments(
                     "--stacktrace",

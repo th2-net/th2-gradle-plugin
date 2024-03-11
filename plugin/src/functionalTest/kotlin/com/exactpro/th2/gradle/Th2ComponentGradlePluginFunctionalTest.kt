@@ -51,6 +51,7 @@ class Th2ComponentGradlePluginFunctionalTest {
             GradleRunner.create()
                 .forwardOutput()
                 .withDebug(true)
+                .withConfiguredVersion()
                 .withPluginClasspath()
                 .withProjectDir(projectDir)
                 .withArguments(

@@ -48,6 +48,7 @@ class Th2PublishGradlePluginFunctionalTest {
             GradleRunner.create()
                 .forwardOutput()
                 .withPluginClasspath()
+                .withConfiguredVersion()
                 .withProjectDir(projectDir)
                 .withArguments("--stacktrace", "tasks")
                 .build()
@@ -85,6 +86,7 @@ class Th2PublishGradlePluginFunctionalTest {
             GradleRunner.create()
                 .forwardOutput()
                 .withPluginClasspath()
+                .withConfiguredVersion()
                 .withProjectDir(projectDir)
                 .withEnvironment(
                     mapOf(
