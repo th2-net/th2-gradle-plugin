@@ -21,4 +21,4 @@ jobs:
         with:
          gradle-version: ${{ matrix.gradle-version }}
       - name: Run build with Gradle
-        run: ./gradlew clean build --info
+        run: gradle clean build --info
