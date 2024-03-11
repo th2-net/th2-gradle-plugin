@@ -43,6 +43,7 @@ functionalTest {
         listOf(
             strategies.coverageForGradleVersion("7.6"),
             strategies.coverageForLatestGlobalAvailableVersion,
+            strategies.coverageForGradleVersion(GradleVersion.current().version),
         ),
     )
 }
