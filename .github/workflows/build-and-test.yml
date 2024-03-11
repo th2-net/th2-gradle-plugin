@@ -9,6 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         gradle-version: ['7.6.4', '8.6', 'wrapper']
     steps:
