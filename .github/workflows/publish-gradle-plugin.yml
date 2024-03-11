@@ -84,7 +84,7 @@ jobs:
     needs:
       - create-release
       - version
-    uses: .github/workflows/version-update.yml
+    uses: ./.github/workflows/version-update.yml
     with:
      next-version: ${{ needs.version.outputs.NEXT_VERSION }}
      current-version: ${{ needs.version.outputs.CURRENT_VERSION }}
