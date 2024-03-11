@@ -77,30 +77,9 @@ Third-party plugins applied under the hood:
 
 Until this plugin is not published to Gradle portal it can be applied from Sonatype repository.
 
-### Configure plugin management
+### Apply plugins
 
-Add the following block in the beginning of the `settings.gradle` file.
-
-```groovy
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        maven { url 'https://s01.oss.sonatype.org/content/repositories/releases/' }
-    }
-}
-```
-
-Add this block to `build.gradle` where you want to apply plugins.
-
-```groovy
-buildscript {
-    dependencies {
-        classpath("com.exactpro.th2:plugin:<version>")
-    }
-}
-```
-
-Now you can apply plugins you need:
+Example:
 
 ```groovy
 plugins {
