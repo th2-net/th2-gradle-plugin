@@ -27,9 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - id: update-branch
-        run: echo "NEW_BRANCH=new-version-${{ inputs.next-version }}" >> $GITHUB_ENV
-      - run: git switch -c ${{ env.NEW_BRANCH }}
+      - run: echo "NEW_BRANCH=new-version-${{ inputs.next-version }}" >> $GITHUB_ENV
       - name: Prepare next dev version
         id: prepare_next_dev
         run: |
@@ -41,6 +39,7 @@ jobs:
           add: "['gradle.properties']"
           default_author: github_actions
           message: "Prepare next version"
+          new_branch: ${{ env.NEW_BRANCH }}
       - name: Create PR for version update
         run: >
           gh pr create --title "Prepare next version"
