@@ -78,7 +78,7 @@ jobs:
       - version
     permissions:
       contents: write
-    if: !cancelled() && (needs.build-gradle-portal.result == 'success' || needs.build-sonatype.result == 'success')
+    if: ${{ !cancelled() && (needs.build-gradle-portal.result == 'success' || needs.build-sonatype.result == 'success') }}
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v4
