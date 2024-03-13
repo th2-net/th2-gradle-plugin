@@ -2,6 +2,15 @@ name: publish gradle plugin
 
 on:
   workflow_dispatch:
+    inputs:
+      sonatype:
+        type: boolean
+        default: true
+        description: "publish plugin to sonatype"
+      gradle-portal:
+        type: boolean
+        default: true
+        description: "publish plugin to Gradle Portal"
 
 env:
   VERSION_FILE: gradle.properties
@@ -23,7 +32,8 @@ jobs:
           version-source: file
           version-file: ${{ env.VERSION_FILE }}
           version-file-extraction-pattern: ${{ env.VERSION_PATTERN }}
-  build:
+  build-gradle-portal:
+    if: inputs.gradle-portal
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
@@ -39,13 +49,36 @@ jobs:
           ./gradlew clean build publishPlugins --info
           -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }}
           -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
+  build-sonatype:
+    if: inputs.sonatype
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v2
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: wrapper
+      - name: Publish plugins to Gradle portal
+        run: >
+          ./gradlew clean build publishToSonatype closeAndReleaseStagingRepository --info
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SONATYPE_GPG_ARMORED_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SONATYPE_SIGNING_PASSWORD }}
+
   create-release:
     runs-on: ubuntu-latest
     needs:
-      - build
+      - build-gradle-portal
+      - build-sonatype
       - version
     permissions:
       contents: write
+    if: !cancelled() && (needs.build-gradle-portal.result == 'success' || needs.build-sonatype.result == 'success')
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v4
