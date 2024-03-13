@@ -50,6 +50,7 @@ functionalTest {
     )
 }
 
+@Suppress("PropertyName")
 val vcs_url: String by project
 
 gradlePlugin {
