@@ -30,6 +30,7 @@ Third-party plugins applied under the hood:
 This plugin prepares the project to be built as gRPC library for th2 component.
 If this plugin is applied to the root project it also applies [base plugin](#comexactproth2gradlebase).
 The `java-library` plugin **MUST** be also applied to the project with grpc plugin.
+Plugin can be either configured via `th2Grpc` extension.
 
 Plugin configures protobuf plugin to generate java stubs from `src/main/proto` source set.
 
