@@ -133,31 +133,58 @@ signing {
     publishing.publications.forEach(this::sign)
 }
 
+val markerJar by tasks.register<Jar>("markerJar") {
+    archiveBaseName.set("marker")
+}
+val markerJarSource by tasks.register<Jar>("markerJarSource") {
+    archiveBaseName.set("marker-source")
+}
+val markerJarJavadoc by tasks.register<Jar>("markerJarJavadoc") {
+    archiveBaseName.set("marker-javadoc")
+}
+
 publishing {
-    publications.withType<MavenPublication> {
-        pom {
-            name.set(rootProject.name)
-            packaging = "jar"
-            description.set(rootProject.description)
-            url.set(vcs_url)
-            scm {
+    publications {
+        withType<MavenPublication> {
+            pom {
+                name.set(rootProject.name)
+                packaging = "jar"
+                description.set(rootProject.description)
                 url.set(vcs_url)
-            }
-            licenses {
-                license {
-                    name.set("The Apache License, Version 2.0")
-                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                scm {
+                    url.set(vcs_url)
+                }
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("developer")
+                        name.set("developer")
+                        email.set("developer@exactpro.com")
+                    }
+                }
+                scm {
+                    url.set(vcs_url)
                 }
             }
-            developers {
-                developer {
-                    id.set("developer")
-                    name.set("developer")
-                    email.set("developer@exactpro.com")
+        }
+        afterEvaluate {
+            gradlePlugin.plugins.forEach {
+                val publicationName = "${it.name}PluginMarkerMaven"
+                // we need to add this to meet Sonatype requirement
+                named<MavenPublication>(publicationName) {
+                    artifact(markerJar)
+                    artifact(markerJarSource) {
+                        classifier = "source"
+                    }
+                    artifact(markerJarJavadoc) {
+                        classifier = "javadoc"
+                    }
                 }
-            }
-            scm {
-                url.set(vcs_url)
             }
         }
     }
