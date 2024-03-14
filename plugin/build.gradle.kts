@@ -57,41 +57,46 @@ gradlePlugin {
     website.set("https://github.com/th2-net/th2-gradle-plugin")
     vcsUrl.set(vcs_url)
 
-    plugins.create("base") {
-        id = "com.exactpro.th2.gradle.base"
-        displayName = "Plugin for applying general project configuration and check"
-        description = "Plugin helps you configure jar manifest and check dependencies for vulnerabilities"
-        tags.set(listOf("th2", "base"))
-        implementationClass = "com.exactpro.th2.gradle.BaseTh2Plugin"
-    }
+    plugins {
+        create("base") {
+            id = "com.exactpro.th2.gradle.base"
+            displayName = "Plugin for applying general project configuration and check"
+            description = "Plugin helps you configure jar manifest and check dependencies for vulnerabilities"
+            tags.set(listOf("th2", "base"))
+            implementationClass = "com.exactpro.th2.gradle.BaseTh2Plugin"
+        }
 
-    plugins.create("grpc") {
-        id = "com.exactpro.th2.gradle.grpc"
-        displayName = "Plugin for building gRPC proto for th2 components"
-        description =
-            "Plugin helps you configure project to generate source code from proto files for using in th2 components"
-        tags.set(listOf("th2", "gRPC"))
-        implementationClass = "com.exactpro.th2.gradle.GrpcTh2Plugin"
-    }
+        create("grpc") {
+            id = "com.exactpro.th2.gradle.grpc"
+            displayName = "Plugin for building gRPC proto for th2 components"
+            description =
+                "Plugin helps you configure project to generate source code from proto files for using in th2 components"
+            tags.set(listOf("th2", "gRPC"))
+            implementationClass = "com.exactpro.th2.gradle.GrpcTh2Plugin"
+        }
 
-    plugins.create("publish") {
-        id = "com.exactpro.th2.gradle.publish"
-        displayName = "Plugin for publishing maven artifacts to sonatype"
-        description = "Plugin helps you configure your project to publish maven artifacts to sonatype"
-        tags.set(listOf("th2", "publish"))
-        implementationClass = "com.exactpro.th2.gradle.PublishTh2Plugin"
-    }
+        create("publish") {
+            id = "com.exactpro.th2.gradle.publish"
+            displayName = "Plugin for publishing maven artifacts to sonatype"
+            description = "Plugin helps you configure your project to publish maven artifacts to sonatype"
+            tags.set(listOf("th2", "publish"))
+            implementationClass = "com.exactpro.th2.gradle.PublishTh2Plugin"
+        }
 
-    plugins.create("component") {
-        id = "com.exactpro.th2.gradle.component"
-        displayName = "Plugin packaging th2 component"
-        description = "Plugin helps to package th2 component and prepare it for building docker image"
-        tags.set(listOf("th2", "docker"))
-        implementationClass = "com.exactpro.th2.gradle.ComponentTh2Plugin"
+        create("component") {
+            id = "com.exactpro.th2.gradle.component"
+            displayName = "Plugin packaging th2 component"
+            description = "Plugin helps to package th2 component and prepare it for building docker image"
+            tags.set(listOf("th2", "docker"))
+            implementationClass = "com.exactpro.th2.gradle.ComponentTh2Plugin"
+        }
     }
 }
 
+val publishPlugins by tasks.named("publishPlugins")
+
 tasks.withType<Test> {
+    publishPlugins.mustRunAfter(this)
     // Use JUnit Jupiter for unit tests.
     useJUnitPlatform()
 }
