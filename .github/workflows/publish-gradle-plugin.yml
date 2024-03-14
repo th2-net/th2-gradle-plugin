@@ -114,6 +114,7 @@ jobs:
           tag: ${{ needs.version.outputs.CURRENT_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
   update-version:
+    if: ${{ !cancelled() }}
     needs:
       - create-release
       - version
