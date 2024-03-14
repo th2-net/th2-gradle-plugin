@@ -3,6 +3,8 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    `maven-publish`
+    signing
     alias(libs.plugins.kotlin)
     alias(libs.plugins.gradle.publish)
     alias(libs.plugins.build.config)
@@ -48,9 +50,12 @@ functionalTest {
     )
 }
 
+@Suppress("PropertyName")
+val vcs_url: String by project
+
 gradlePlugin {
     website.set("https://github.com/th2-net/th2-gradle-plugin")
-    vcsUrl.set("https://github.com/th2-net/th2-gradle-plugin.git")
+    vcsUrl.set(vcs_url)
 
     plugins.create("base") {
         id = "com.exactpro.th2.gradle.base"
@@ -113,5 +118,48 @@ ktlint {
     }
     filter {
         exclude("**/com/exactpro/th2/gradle/config/Libraries.kt")
+    }
+}
+
+signing {
+    val signingKey = findProperty("signingKey") as? String
+    val signingPassword = findProperty("signingPassword") as? String
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    publishing.publications.forEach(this::sign)
+}
+
+publishing {
+    publications.withType<MavenPublication> {
+        pom {
+            name.set(rootProject.name)
+            packaging = "jar"
+            description.set(rootProject.description)
+            url.set(vcs_url)
+            scm {
+                url.set(vcs_url)
+            }
+            licenses {
+                license {
+                    name.set("The Apache License, Version 2.0")
+                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                }
+            }
+            developers {
+                developer {
+                    id.set("developer")
+                    name.set("developer")
+                    email.set("developer@exactpro.com")
+                }
+            }
+            scm {
+                url.set(vcs_url)
+            }
+        }
+    }
+}
+
+tasks.withType<Sign> {
+    onlyIf {
+        project.hasProperty("signingKey") && project.hasProperty("signingPassword")
     }
 }

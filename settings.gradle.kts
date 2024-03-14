@@ -7,3 +7,4 @@ pluginManagement {
 
 rootProject.name = "th2-gradle-plugin"
 include("plugin")
+project(":plugin").name = "th2-gradle-plugin"
