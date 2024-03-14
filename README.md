@@ -1,6 +1,8 @@
 # th2 Gradle
 
-This project contains Gradle plugins that simplifies development of th2 components
+This project contains Gradle plugins that simplifies development of th2 components.
+
+[![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/com.exactpro.th2.gradle.base)](https://plugins.gradle.org/search?term=com.exactpro.th2.gradle)
 
 ## Available plugins
 
