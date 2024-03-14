@@ -21,6 +21,9 @@ It adds required configuration to the project to be ready for vulnerability scan
 Also, it adds useful information from git into the JAR file.
 If one of Java plugins is applied it also add maven BOM into dependencies.
 
+To provide API key to access NVD vulnerability database use property `nvdApiKey`.
+To provide delay in milliseconds between attempts to connect to NVD database use property `nvdDelay`.
+
 Third-party plugins applied under the hood:
 
 - [com.github.jk1.dependency-license-report](https://github.com/jk1/Gradle-License-Report)
