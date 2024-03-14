@@ -51,3 +51,4 @@ jobs:
           --base master
           --reviewer OptimumCode
           --reviewer Nikita-Smirnov-Exactpro
+          --label ignore
