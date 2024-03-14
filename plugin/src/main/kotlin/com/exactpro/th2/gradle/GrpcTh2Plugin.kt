@@ -31,6 +31,8 @@ import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 
+private const val GRPC_EXTENSION_NAME = "th2Grpc"
+
 class GrpcTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
         if (project === project.rootProject) {
@@ -41,8 +43,9 @@ class GrpcTh2Plugin : Plugin<Project> {
         checkJavaLibraryPlugin(project)
         project.pluginManager.apply(ProtobufPlugin::class.java)
         val protobufExtension = project.the<ProtobufExtension>()
+        val th2GrpcExtension = project.extensions.create(GRPC_EXTENSION_NAME, GrpcTh2Extension::class.java)
         applyProtobufPlugin(protobufExtension)
-        configureJavaPlugin(project, protobufExtension)
+        configureJavaPlugin(project, protobufExtension, th2GrpcExtension)
     }
 
     private fun checkJavaLibraryPlugin(project: Project) {
@@ -61,11 +64,12 @@ class GrpcTh2Plugin : Plugin<Project> {
     private fun configureJavaPlugin(
         project: Project,
         protobufExtension: ProtobufExtension,
+        th2GrpcExtension: GrpcTh2Extension,
     ) {
         project.plugins.withType<JavaPlugin> {
             addResources(project, protobufExtension)
-            configureJavaDependencies(project)
             project.afterEvaluate {
+                configureJavaDependencies(project, th2GrpcExtension)
                 configureJavaTaskDependencies(project)
             }
         }
@@ -79,7 +83,10 @@ class GrpcTh2Plugin : Plugin<Project> {
         add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, notation)
     }
 
-    private fun configureJavaDependencies(project: Project) {
+    private fun configureJavaDependencies(
+        project: Project,
+        th2GrpcExtension: GrpcTh2Extension,
+    ) {
         project.dependencies.apply {
             api("com.google.protobuf:protobuf-java-util")
             api("io.grpc:grpc-stub")
@@ -88,7 +95,9 @@ class GrpcTh2Plugin : Plugin<Project> {
             impl("io.grpc:grpc-core")
             impl("io.grpc:grpc-netty")
             impl("javax.annotation:javax.annotation-api:1.3.2")
-            impl(Libraries.SERVICE_GENERATOR_PLUGIN)
+            if (th2GrpcExtension.service.convention(false).get()) {
+                impl(Libraries.SERVICE_GENERATOR_PLUGIN)
+            }
         }
     }
 
