@@ -42,6 +42,9 @@ class Th2GrpcGradlePluginFunctionalTest {
             }
             group = 'com.exactpro.th2'
             version = '0.0.1'
+            th2Grpc {
+              service.set(true)
+            }
             repositories {
                 mavenCentral()
                 maven {
@@ -79,6 +82,59 @@ class Th2GrpcGradlePluginFunctionalTest {
             { assertEquals(TaskOutcome.SUCCESS, result.task(":generateProto")?.outcome, "generateProto executed") },
             { assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava")?.outcome, "compileJava executed") },
             { assertAllSourcesGenerated(buildDirectory) },
+        )
+    }
+
+    @Test
+    fun `proto is generated when applied to root project without service`() {
+        val buildFile = projectDir.resolve("build.gradle")
+        val settingsFile = projectDir.resolve("settings.gradle")
+        settingsFile.writeText("rootProject.name = \"test\"")
+        buildFile.writeText(
+            """
+            plugins {
+                id('java-library')
+                id('com.exactpro.th2.gradle.grpc')
+            }
+            group = 'com.exactpro.th2'
+            version = '0.0.1'
+            repositories {
+                mavenCentral()
+                maven {
+                    name 'Sonatype_snapshots'
+                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                }
+                maven {
+                    name 'Sonatype_releases'
+                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                }
+            }
+            """.trimIndent(),
+        )
+        projectDir.writeProtoFile(service = false)
+
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withPluginClasspath()
+                .withConfiguredVersion()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    ":build",
+                    // because no git repository exist in test
+                    "-x",
+                    ":generateGitProperties",
+                )
+                .build()
+
+        val buildDirectory = projectDir / "build"
+
+        assertAll(
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":generateProto")?.outcome, "generateProto executed") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava")?.outcome, "compileJava executed") },
+            { assertAllSourcesGenerated(buildDirectory, service = false) },
         )
     }
 
@@ -126,6 +182,9 @@ class Th2GrpcGradlePluginFunctionalTest {
                 id('java-library')
                 id('com.exactpro.th2.gradle.grpc')
             }
+            th2Grpc {
+              service.set(true)
+            }
             """.trimIndent(),
         )
         subProject.writeProtoFile()
@@ -155,7 +214,7 @@ class Th2GrpcGradlePluginFunctionalTest {
         )
     }
 
-    private fun File.writeProtoFile() {
+    private fun File.writeProtoFile(service: Boolean = true) {
         val protoFile =
             resolve("src")
                 .resolve("main")
@@ -172,22 +231,34 @@ class Th2GrpcGradlePluginFunctionalTest {
             import "google/protobuf/empty.proto";
             option java_multiple_files = true;
             option java_package = "com.exactpro.th2.test.grpc";
-            service Test {
-                rpc TestMethod(TestClass) returns (google.protobuf.Empty);
-            }
+            ${if (service) {
+                """
+                service Test {
+                    rpc TestMethod(TestClass) returns (google.protobuf.Empty);
+                }
+                """.trimIndent()
+            } else {
+                ""
+            }}
             
             message TestClass {}
             """.trimIndent(),
         )
     }
 
-    private fun Th2GrpcGradlePluginFunctionalTest.assertAllSourcesGenerated(buildDirectory: File) {
+    private fun assertAllSourcesGenerated(
+        buildDirectory: File,
+        service: Boolean = true,
+    ) {
         val generatedSources = buildDirectory / "generated" / "source" / "proto" / "main"
         val resources = buildDirectory / "resources" / "main"
         val metaInf = resources / "META-INF"
         assertAll(
             heading = "generated sources",
             {
+                if (!service) {
+                    return@assertAll
+                }
                 assertAll(
                     heading = "resources",
                     {
@@ -204,11 +275,19 @@ class Th2GrpcGradlePluginFunctionalTest {
                         heading = "generated protobuf",
                         { assertFileExist(resolve("TestClass.java")) },
                         { assertFileExist(resolve("TestClassOrBuilder.java")) },
-                        { assertFileExist(resolve("TestOuterClass.java")) },
+                        grpc@{
+                            if (!service) {
+                                return@grpc
+                            }
+                            assertFileExist(resolve("TestOuterClass.java"))
+                        },
                     )
                 }
             },
             {
+                if (!service) {
+                    return@assertAll
+                }
                 with(generatedSources / "grpc" / "com" / "exactpro" / "th2" / "test" / "grpc") {
                     assertAll(
                         heading = "generated grpc",
@@ -217,6 +296,9 @@ class Th2GrpcGradlePluginFunctionalTest {
                 }
             },
             {
+                if (!service) {
+                    return@assertAll
+                }
                 with(generatedSources / "services" / "com" / "exactpro" / "th2" / "test" / "grpc") {
                     assertAll(
                         heading = "generated java services",
@@ -228,6 +310,9 @@ class Th2GrpcGradlePluginFunctionalTest {
                 }
             },
             {
+                if (!service) {
+                    return@assertAll
+                }
                 with(generatedSources / "services" / "python") {
                     assertAll(
                         heading = "generated python services",
