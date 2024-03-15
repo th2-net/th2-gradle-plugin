@@ -72,6 +72,11 @@ class BaseTh2Plugin : Plugin<Project> {
             formats = listOf("SARIF", "JSON", "HTML")
             failBuildOnCVSS = 5.0f
 
+            nvd.apply {
+                apiKey = project.findProperty("nvdApiKey") as? String
+                delay = (project.findProperty("nvdDelay") as? String)?.toInt() ?: 10_000
+            }
+
             analyzers.apply {
                 assemblyEnabled = false
                 nugetconfEnabled = false
