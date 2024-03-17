@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
@@ -126,23 +127,6 @@ ktlint {
     }
 }
 
-signing {
-    val signingKey = findProperty("signingKey") as? String
-    val signingPassword = findProperty("signingPassword") as? String
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    publishing.publications.forEach(this::sign)
-}
-
-val markerJar by tasks.register<Jar>("markerJar") {
-    archiveBaseName.set("marker")
-}
-val markerJarSource by tasks.register<Jar>("markerJarSource") {
-    archiveBaseName.set("marker-source")
-}
-val markerJarJavadoc by tasks.register<Jar>("markerJarJavadoc") {
-    archiveBaseName.set("marker-javadoc")
-}
-
 publishing {
     publications {
         withType<MavenPublication> {
@@ -177,17 +161,54 @@ publishing {
                 val publicationName = "${it.name}PluginMarkerMaven"
                 // we need to add this to meet Sonatype requirement
                 named<MavenPublication>(publicationName) {
-                    artifact(markerJar)
-                    artifact(markerJarSource) {
+                    // An individual task for each plugin is created
+                    // because in gradle 8 task cannot use output of another task
+                    // without declaring a dependency on it.
+                    // If we use the same task for multiple publications it will result in an error
+                    // because Gradle will think the task uses the output from another task (for a different plugin).
+                    // This happens because all files will have the same name
+                    artifact(markerJarTask(it.name))
+                    artifact(markerSourceJarTask(it.name)) {
                         classifier = "source"
                     }
-                    artifact(markerJarJavadoc) {
+                    artifact(markerJavadocJarTask(it.name)) {
                         classifier = "javadoc"
                     }
                 }
             }
         }
     }
+}
+
+fun Project.markerJarTask(pluginName: String): TaskProvider<Jar> =
+    tasks.register<Jar>("marker${pluginName.capitalizeAsciiOnly()}Jar") {
+        archiveBaseName.set("marker-$pluginName")
+        manifest.attributes(
+            "Gradle-Plugin-Name" to pluginName,
+        )
+    }
+
+fun Project.markerSourceJarTask(pluginName: String): TaskProvider<Jar> =
+    tasks.register<Jar>("marker${pluginName.capitalizeAsciiOnly()}SourceJar") {
+        archiveBaseName.set("marker-$pluginName-source")
+        manifest.attributes(
+            "Gradle-Plugin-Name" to pluginName,
+        )
+    }
+
+fun Project.markerJavadocJarTask(pluginName: String): TaskProvider<Jar> =
+    tasks.register<Jar>("marker${pluginName.capitalizeAsciiOnly()}JavadocJar") {
+        archiveBaseName.set("marker-$pluginName-javadoc")
+        manifest.attributes(
+            "Gradle-Plugin-Name" to pluginName,
+        )
+    }
+
+signing {
+    val signingKey = findProperty("signingKey") as? String
+    val signingPassword = findProperty("signingPassword") as? String
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    publishing.publications.forEach(this@signing::sign)
 }
 
 tasks.withType<Sign> {
