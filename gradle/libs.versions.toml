@@ -16,7 +16,7 @@ protobuf = { group = "com.google.protobuf", name = "protobuf-gradle-plugin", ver
 licenses = { group = "com.github.jk1.dependency-license-report", name = "com.github.jk1.dependency-license-report.gradle.plugin", version = "2.5" }
 download = { group = "de.undercouch.download", name = "de.undercouch.download.gradle.plugin", version = "5.6.0" }
 git-properties = { group = "com.gorylenko.gradle-git-properties", name = "gradle-git-properties", version = "2.4.1" }
-owasp = { group = "org.owasp", name = "dependency-check-gradle", version = "9.0.9" }
+owasp = { group = "org.owasp", name = "dependency-check-gradle", version = "9.0.10" }
 docker = { group = "com.palantir.gradle.docker", name = "gradle-docker", version = "0.36.0" }
 junit-bom = { group = "org.junit", name = "junit-bom", version = "5.10.2" }
 junit-parameters = { group = "org.junit.jupiter", name = "junit-jupiter-params" }
