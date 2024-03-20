@@ -114,7 +114,7 @@ class PublishTh2Plugin : Plugin<Project> {
         extension: PublishTh2Extension,
     ) {
         project.rootProject.allprojects.forEach { subProj ->
-            subProj.afterEvaluate {
+            with(subProj) {
                 plugins.withType<MavenPublishPlugin> {
                     configurePublishingExtension(subProj, extension)
                     plugins.withType<JavaPlugin> {
