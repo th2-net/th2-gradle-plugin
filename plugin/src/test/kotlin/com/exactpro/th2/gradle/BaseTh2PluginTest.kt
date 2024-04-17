@@ -44,10 +44,10 @@ internal class BaseTh2PluginTest {
         project.pluginManager.apply(javaPlugin)
         project.pluginManager.apply("com.exactpro.th2.gradle.base")
         assertAll(
-            { extractedPlugin(project, DependencyCheckPlugin::class.java) },
-            { extractedPlugin(project, LicenseReportPlugin::class.java) },
-            { extractedPlugin(project, GitPropertiesPlugin::class.java) },
-            { assertBom(project, "implementation") },
+            { assertHasPlugin(project, DependencyCheckPlugin::class.java) },
+            { assertHasPlugin(project, LicenseReportPlugin::class.java) },
+            { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
+            { assertHasBomDependency(project, "implementation") },
         )
     }
 
@@ -62,11 +62,11 @@ internal class BaseTh2PluginTest {
         project.pluginManager.apply("java-test-fixtures")
         project.pluginManager.apply("com.exactpro.th2.gradle.base")
         assertAll(
-            { extractedPlugin(project, DependencyCheckPlugin::class.java) },
-            { extractedPlugin(project, LicenseReportPlugin::class.java) },
-            { extractedPlugin(project, GitPropertiesPlugin::class.java) },
-            { assertBom(project, "implementation") },
-            { assertBom(project, "testFixturesImplementation") },
+            { assertHasPlugin(project, DependencyCheckPlugin::class.java) },
+            { assertHasPlugin(project, LicenseReportPlugin::class.java) },
+            { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
+            { assertHasBomDependency(project, "implementation") },
+            { assertHasBomDependency(project, "testFixturesImplementation") },
         )
     }
 
@@ -85,7 +85,7 @@ internal class BaseTh2PluginTest {
         }
     }
 
-    private fun <T : Plugin<*>> extractedPlugin(
+    private fun <T : Plugin<*>> assertHasPlugin(
         project: Project,
         pluginClass: Class<T>,
     ) {
@@ -95,7 +95,7 @@ internal class BaseTh2PluginTest {
         )
     }
 
-    private fun assertBom(
+    private fun assertHasBomDependency(
         project: Project,
         configuration: String,
     ) {
