@@ -52,3 +52,8 @@ jobs:
           --reviewer OptimumCode
           --reviewer Nikita-Smirnov-Exactpro
           --label ignore
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip tests by technical reasons
+        run: echo 'Tests are skipped because this workflow does routine update'
