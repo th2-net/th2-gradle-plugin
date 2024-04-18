@@ -27,7 +27,7 @@ jobs:
       - name: 'Checkout Repository'
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PUSH_PAT }}
       - run: echo "NEW_BRANCH=new-version-${{ inputs.next-version }}" >> $GITHUB_ENV
       - name: Prepare next dev version
         id: prepare_next_dev
@@ -43,7 +43,7 @@ jobs:
           new_branch: ${{ env.NEW_BRANCH }}
       - name: Create PR for version update
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.PUSH_PAT }}
         run: >
           gh pr create --title "Prepare next version"
           --body "Automated version update"
@@ -52,8 +52,3 @@ jobs:
           --reviewer OptimumCode
           --reviewer Nikita-Smirnov-Exactpro
           --label ignore
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip tests by technical reasons
-        run: echo 'Tests are skipped because this workflow does routine update'
