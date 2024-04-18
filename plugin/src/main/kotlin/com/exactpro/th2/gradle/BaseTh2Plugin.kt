@@ -26,8 +26,8 @@ import de.undercouch.gradle.tasks.download.DownloadAction
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaTestFixturesPlugin
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
@@ -44,6 +44,8 @@ private const val BASE_EXTERNAL_CONFIGURATION_URL = "https://raw.githubuserconte
 internal const val EXACTPRO_SYSTEMS_LLC = "Exactpro Systems LLC"
 
 internal const val VENDOR_ID = "com.exactpro"
+
+internal const val TEST_FIXTURES_IMPLEMENTATION = "testFixturesImplementation"
 
 class BaseTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -139,6 +141,15 @@ class BaseTh2Plugin : Plugin<Project> {
                     JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
                     project.dependencies.platform(Libraries.TH2_BOM),
                 )
+
+            // only if we have JavaTestFixtures plugin applied
+            plugins.withType<JavaTestFixturesPlugin> {
+                project.dependencies
+                    .add(
+                        TEST_FIXTURES_IMPLEMENTATION,
+                        project.dependencies.platform(Libraries.TH2_BOM),
+                    )
+            }
         }
     }
 }
