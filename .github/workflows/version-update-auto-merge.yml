@@ -17,7 +17,7 @@ jobs:
       with:
         review-message: "Auto approved automated PR for version update"
     - name: Enable auto-merge
-      run: gh pr merge --auto --merge "$PR_URL"
+      run: gh pr merge --auto --squash --delete-branch "$PR_URL"
       env:
         PR_URL: ${{ github.event.pull_request.html_url }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
