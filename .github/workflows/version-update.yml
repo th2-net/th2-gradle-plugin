@@ -43,7 +43,7 @@ jobs:
           new_branch: ${{ env.NEW_BRANCH }}
       - name: Create PR for version update
         env:
-          GH_TOKEN: ${{ secrets.PUSH_PAT }}
+          GH_TOKEN: ${{ github.token }}
         run: >
           gh pr create --title "Prepare next version"
           --body "Automated version update"
