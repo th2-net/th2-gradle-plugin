@@ -1,0 +1,22 @@
+name: Automatically approve and merge version update if CI passes
+
+on:
+  pull_request_target:
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'github-actions[bot]' && startsWith(github.event.pull_request.title, 'Prepare next version')
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+    - name: Approve PR
+      uses: hmarr/auto-approve-action@v4
+      with:
+        review-message: "Auto approved automated PR for version update"
+    - name: Enable auto-merge
+      run: gh pr merge --auto --merge "$PR_URL"
+      env:
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
