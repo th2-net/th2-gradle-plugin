@@ -33,7 +33,7 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
-import java.net.URI
+import java.net.URL
 
 private const val JAVA_VERSION_PROP = "java.version"
 
@@ -103,7 +103,7 @@ class BaseTh2Plugin : Plugin<Project> {
             filters = arrayOf(LicenseBundleNormalizer(licenseNormalizerBundlePath.path, false))
             renderers = arrayOf(JsonReportRenderer("licenses.json", false))
             excludeOwnGroup = true
-            allowedLicensesFile = URI("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/allowed-licenses.json")
+            allowedLicensesFile = URL("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/allowed-licenses.json")
         }
     }
 
