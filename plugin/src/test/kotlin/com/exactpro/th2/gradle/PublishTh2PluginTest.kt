@@ -43,6 +43,8 @@ internal class PublishTh2PluginTest {
         project.pluginManager.apply("maven-publish")
         project.pluginManager.apply("com.exactpro.th2.gradle.publish")
 
+        project.group = "com.example"
+        project.version = "1.0.0"
         project.description = "test description"
         project.extensions.findByType<PublishTh2Extension>().apply {
             assertNotNull(this, "no publish th2 extension applied")

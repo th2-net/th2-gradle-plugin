@@ -18,6 +18,7 @@ package com.exactpro.th2.gradle
 
 import io.github.gradlenexus.publishplugin.NexusPublishExtension
 import io.github.gradlenexus.publishplugin.NexusPublishPlugin
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.tasks.JvmConstants
@@ -117,6 +118,9 @@ class PublishTh2Plugin : Plugin<Project> {
             with(subProj) {
                 plugins.withType<MavenPublishPlugin> {
                     configurePublishingExtension(subProj, extension)
+                    afterEvaluate {
+                        checkRequiredPublicationParameter(this, extension)
+                    }
                     plugins.withType<JavaPlugin> {
                         the<JavaPluginExtension>().apply {
                             // in order to match sonatype requirements
@@ -126,6 +130,28 @@ class PublishTh2Plugin : Plugin<Project> {
                     }
                 }
             }
+        }
+    }
+
+    private fun checkRequiredPublicationParameter(
+        project: Project,
+        extension: PublishTh2Extension,
+    ) {
+        val errors = arrayListOf<String>()
+        if (extension.pom.vcsUrl.getOrElse("").isEmpty()) {
+            errors += "vcs url is not provided (use th2Publish.pom extension or vcs_url property)"
+        }
+        if (project.description.isNullOrEmpty()) {
+            errors += "description is not provided (use description property)"
+        }
+        if (project.version.toString().let { it == Project.DEFAULT_VERSION || it.isEmpty() }) {
+            errors += "version is not provided (use version property)"
+        }
+        if (project.group.toString().isEmpty()) {
+            errors += "group is not provided (use group property)"
+        }
+        if (errors.isNotEmpty()) {
+            throw GradleException("project '${project.name}' contains following issues:\n${errors.joinToString("\n")}")
         }
     }
 

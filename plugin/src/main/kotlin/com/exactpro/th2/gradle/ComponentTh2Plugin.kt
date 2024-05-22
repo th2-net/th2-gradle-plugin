@@ -18,6 +18,7 @@ package com.exactpro.th2.gradle
 
 import com.palantir.gradle.docker.DockerExtension
 import com.palantir.gradle.docker.PalantirDockerPlugin
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
@@ -41,6 +42,12 @@ class ComponentTh2Plugin : Plugin<Project> {
             }
             tasks.getByName("dockerPrepare")
                 .dependsOn(tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME))
+
+            afterEvaluate {
+                if (version.toString().let { it == Project.DEFAULT_VERSION || it.isEmpty() }) {
+                    throw GradleException("project '$name' missing version (use version property to provide the version)")
+                }
+            }
         }
     }
 }
