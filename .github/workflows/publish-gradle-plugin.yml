@@ -123,3 +123,5 @@ jobs:
     with:
      next-version: ${{ needs.version.outputs.NEXT_VERSION }}
      current-version: ${{ needs.version.outputs.CURRENT_VERSION }}
+    secrets:
+      PUSH_PAT: ${{ secrets.PUSH_PAT }}

@@ -8,6 +8,10 @@ on:
       next-version:
         type: string
         description: "next version to be inserted"
+    secrets:
+      PUSH_PAT:
+        required: true
+        description: Token with push rights to allow creating PR, triggering workflows and merging the PR after that
   # Just for test purposes
   workflow_dispatch:
     inputs:
