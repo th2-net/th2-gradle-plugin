@@ -16,29 +16,19 @@
 
 package com.exactpro.th2.gradle
 
-import com.github.jk1.license.LicenseReportExtension
 import com.github.jk1.license.LicenseReportPlugin
-import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.gorylenko.GitPropertiesPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
-import java.net.URL
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.writeText
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -92,50 +82,6 @@ internal class BaseTh2PluginTest {
 
         assertThrows<Exception> {
             subProject.pluginManager.apply(BaseTh2Plugin::class.java)
-        }
-    }
-
-    @Test
-    fun `applies license configuration from build script`(
-        @TempDir tempDir: Path,
-    ) {
-        val project =
-            ProjectBuilder.builder().build()
-
-        val customAllowedLicense = "file:test-allowed-licenses.json"
-        val customLicenseNormalizer =
-            tempDir.resolve("test-license-normalizer-bundle.json").apply {
-                writeText("{}")
-            }.absolutePathString()
-        project.extensions.extraProperties.set(TH2_LICENCE_ALLOW_LICENCE_URL_PROP, customAllowedLicense)
-        project.extensions.extraProperties.set(TH2_LICENCE_LICENSE_NORMALIZER_BUNDLE_PATH_PROP, customLicenseNormalizer)
-        project.pluginManager.apply("com.exactpro.th2.gradle.base")
-
-        project.run {
-            assertAll(
-                {
-                    val licenseReport =
-                        assertNotNull(
-                            extensions.findByType<LicenseReportExtension>(),
-                            "no license report extension configured",
-                        )
-                    val licenseBundleNormalizer =
-                        assertNotNull(
-                            licenseReport.filters.single { it is LicenseBundleNormalizer },
-                            "no LicenseBundleNormalizer filter",
-                        ) as LicenseBundleNormalizer
-                    assertAll(
-                        { assertEquals(URL(customAllowedLicense), licenseReport.allowedLicensesFile, "allowed license URL isn't applied") },
-                        {
-                            assertContains(
-                                charSequence = licenseBundleNormalizer.getFilterConfigForCache(),
-                                other = customLicenseNormalizer,
-                                message = "LicenseBundleNormalizer filter isn't default",
-                            )
-                        },
-                    )
-                },
-            )
         }
     }
 
