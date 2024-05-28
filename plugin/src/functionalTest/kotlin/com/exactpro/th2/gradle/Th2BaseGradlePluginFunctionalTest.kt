@@ -42,7 +42,7 @@ class Th2BaseGradlePluginFunctionalTest {
     private val settingsFile by lazy { projectDir.resolve("settings.gradle") }
 
     @Test
-    fun `licenses plugin finds license for kotlin multiplaform dependencies`() {
+    fun `licenses plugin finds license for kotlin multiplatform dependencies`() {
         settingsFile.writeText(
             """
             rootProject.name = "test"
@@ -191,17 +191,40 @@ class Th2BaseGradlePluginFunctionalTest {
         assertIs<ObjectNode>(licenses, "incorrect licenses file structure")
         val dependencies = assertIs<ArrayNode>(licenses.get("dependencies"), "dependencies must be a collection")
 
+        val assertion = { node: ArrayNode, moduleName: String ->
+            assertAll(
+                node.mapIndexed { index, ml ->
+                    {
+                        assertNotNull(
+                            ml.get("moduleLicense"),
+                            "module $moduleName[$index] does not have moduleLicense field",
+                        ) { l ->
+                            assertIs<TextNode>(l, "module $moduleName[$index] moduleLicense field must be a test")
+                            assertEquals(
+                                "Test-License",
+                                l.textValue(),
+                                "module $moduleName[$index] moduleLicense field has incorrect license",
+                            )
+                        }
+                    }
+                },
+            )
+        }
+
         assertAll(
             {
-                dependencies.assertModuleLicense("io.ktor:ktor-bom", "Test-License")
+                dependencies.assertHasModuleLicenses("io.ktor:ktor-bom", assertion)
             },
             {
-                dependencies.assertModuleLicense("io.ktor:ktor-server-default-headers", "Test-License")
+                dependencies.assertHasModuleLicenses("io.ktor:ktor-server-default-headers", assertion)
             },
         )
     }
 
-    private fun ArrayNode.assertHasModuleLicenses(moduleName: String) {
+    private fun ArrayNode.assertHasModuleLicenses(
+        moduleName: String,
+        extraAssertion: (ArrayNode, String) -> Unit = { _, _ -> },
+    ) {
         val module =
             elements().asSequence()
                 .find { it.get("moduleName").textValue() == moduleName }
@@ -210,39 +233,7 @@ class Th2BaseGradlePluginFunctionalTest {
             assertNotNull(moduleInfo.get("moduleLicenses"), "module $moduleName does not have licenses") {
                 assertIs<ArrayNode>(it, "module $moduleName licenses must be a collection")
                 assertFalse(it.isEmpty, "module $moduleName has empty licenses collection")
-            }
-        }
-    }
-
-    private fun ArrayNode.assertModuleLicense(
-        moduleName: String,
-        license: String,
-    ) {
-        val module =
-            elements().asSequence()
-                .find { it.get("moduleName").textValue() == moduleName }
-        assertNotNull(module, "module $moduleName not found") { m ->
-            val moduleInfo = assertIs<ObjectNode>(m, "module info must be an object")
-            assertNotNull(moduleInfo.get("moduleLicenses"), "module $moduleName does not have licenses") { mls ->
-                assertIs<ArrayNode>(mls, "module $moduleName licenses must be a collection")
-                assertFalse(mls.isEmpty, "module $moduleName has empty licenses collection")
-                assertAll(
-                    mls.mapIndexed { index, ml ->
-                        {
-                            assertNotNull(
-                                ml.get("moduleLicense"),
-                                "module $moduleName[$index] does not have moduleLicense field",
-                            ) { l ->
-                                assertIs<TextNode>(l, "module $moduleName[$index] moduleLicense field must be a test")
-                                assertEquals(
-                                    license,
-                                    l.textValue(),
-                                    "module $moduleName[$index] moduleLicense field has incorrect license",
-                                )
-                            }
-                        }
-                    },
-                )
+                extraAssertion(it, moduleName)
             }
         }
     }
