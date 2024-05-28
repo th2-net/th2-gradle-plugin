@@ -17,7 +17,6 @@
 package com.exactpro.th2.gradle
 
 import com.exactpro.th2.gradle.config.Libraries
-import com.exactpro.th2.gradle.licenses.MultiplatformDependenciesFilter
 import com.github.jk1.license.LicenseReportExtension
 import com.github.jk1.license.LicenseReportPlugin
 import com.github.jk1.license.filter.LicenseBundleNormalizer
@@ -100,15 +99,10 @@ class BaseTh2Plugin : Plugin<Project> {
                     overwrite(false)
                 }.execute().get()
             }
-            // this configuration is added because of kotlin multiplatform dependencies
-            // the original dependency specified in `dependencies` block goes only into `*Metadata` configuration
-            // because of that when plugin collecting licenses it does not find dependencies it should
-            configurations += "implementationDependenciesMetadata"
 
             filters =
                 arrayOf(
                     LicenseBundleNormalizer(licenseNormalizerBundlePath.path, false),
-                    MultiplatformDependenciesFilter,
                 )
             renderers = arrayOf(JsonReportRenderer("licenses.json", false))
             excludeOwnGroup = true

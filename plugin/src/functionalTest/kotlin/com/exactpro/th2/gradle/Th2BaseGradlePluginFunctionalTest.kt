@@ -16,13 +16,21 @@
 
 package com.exactpro.th2.gradle
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+
+private val MAPPER = ObjectMapper()
 
 class Th2BaseGradlePluginFunctionalTest {
     @field:TempDir
@@ -51,7 +59,8 @@ class Th2BaseGradlePluginFunctionalTest {
             }
             
             dependencies {
-                implementation 'io.ktor:ktor-server:2.3.3'
+                implementation platform('io.ktor:ktor-bom:2.3.3')
+                implementation 'io.ktor:ktor-server'
             }
             """.trimIndent(),
         )
@@ -74,6 +83,32 @@ class Th2BaseGradlePluginFunctionalTest {
         val checkLicenses = result.task(":checkLicense")
         assertNotNull(checkLicenses, "task checkLicense was not executed") {
             assertEquals(TaskOutcome.SUCCESS, it.outcome, "unexpected task result")
+        }
+
+        val licenses = MAPPER.readTree(projectDir.resolve("build/reports/dependency-license/licenses.json"))
+        assertIs<ObjectNode>(licenses, "incorrect licenses file structure")
+        val dependencies = assertIs<ArrayNode>(licenses.get("dependencies"), "dependencies must be a collection")
+
+        assertAll(
+            {
+                dependencies.assertHasModuleLicenses("io.ktor:ktor-bom")
+            },
+            {
+                dependencies.assertHasModuleLicenses("io.ktor:ktor-server-default-headers")
+            },
+        )
+    }
+
+    private fun ArrayNode.assertHasModuleLicenses(moduleName: String) {
+        val module =
+            elements().asSequence()
+                .find { it.get("moduleName").textValue() == moduleName }
+        assertNotNull(module, "module $moduleName not found") { m ->
+            val moduleInfo = assertIs<ObjectNode>(m, "module info muse be an object")
+            assertNotNull(moduleInfo.get("moduleLicenses"), "module $moduleName does not have licenses") {
+                assertIs<ArrayNode>(it, "module $moduleName licenses must be a collection")
+                assertFalse(it.isEmpty, "module $moduleName has empty licenses collection")
+            }
         }
     }
 }
