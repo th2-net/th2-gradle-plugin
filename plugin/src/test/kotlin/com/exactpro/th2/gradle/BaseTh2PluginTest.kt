@@ -29,12 +29,14 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import java.net.URL
-import kotlin.io.path.Path
+import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.writeText
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -94,12 +96,17 @@ internal class BaseTh2PluginTest {
     }
 
     @Test
-    fun `applies license configuration from build script`() {
+    fun `applies license configuration from build script`(
+        @TempDir tempDir: Path,
+    ) {
         val project =
             ProjectBuilder.builder().build()
 
         val customAllowedLicense = "file:test-allowed-licenses.json"
-        val customLicenseNormalizer = Path("src", "test", "resources", "test-license-normalizer-bundle.json").absolutePathString()
+        val customLicenseNormalizer =
+            tempDir.resolve("test-license-normalizer-bundle.json").apply {
+                writeText("{}")
+            }.absolutePathString()
         project.extensions.extraProperties.set(TH2_LICENCE_ALLOW_LICENCE_URL_PROP, customAllowedLicense)
         project.extensions.extraProperties.set(TH2_LICENCE_LICENSE_NORMALIZER_BUNDLE_PATH_PROP, customLicenseNormalizer)
         project.pluginManager.apply("com.exactpro.th2.gradle.base")
