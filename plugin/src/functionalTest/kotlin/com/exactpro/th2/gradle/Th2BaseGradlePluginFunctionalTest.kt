@@ -19,6 +19,7 @@ package com.exactpro.th2.gradle
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -37,10 +38,11 @@ class Th2BaseGradlePluginFunctionalTest {
     lateinit var projectDir: File
 
     private val buildFile by lazy { projectDir.resolve("build.gradle") }
+    private val propertiesFile by lazy { projectDir.resolve("gradle.properties") }
     private val settingsFile by lazy { projectDir.resolve("settings.gradle") }
 
     @Test
-    fun `licenses plugin finds license for kotlin multiplaform dependencies`() {
+    fun `licenses plugin finds license for kotlin multiplatform dependencies`() {
         settingsFile.writeText(
             """
             rootProject.name = "test"
@@ -99,15 +101,139 @@ class Th2BaseGradlePluginFunctionalTest {
         )
     }
 
-    private fun ArrayNode.assertHasModuleLicenses(moduleName: String) {
+    @Test
+    fun `licenses plugin transforms and checks license by custom configuration`() {
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('org.jetbrains.kotlin.jvm') version '1.8.22'
+                id('com.exactpro.th2.gradle.base')
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            
+            dependencies {
+                implementation platform('io.ktor:ktor-bom:2.3.3')
+                implementation 'io.ktor:ktor-server'
+            }
+            """.trimIndent(),
+        )
+        val customAllowedLicense =
+            projectDir.resolve("test-allowed-licenses.json").apply {
+                writeText(
+                    """
+                    {
+                      "allowedLicenses": [
+                        {
+                          "moduleLicense": "Test-License"
+                        }
+                      ]
+                    }
+                    """.trimIndent(),
+                )
+            }
+        val customLicenseNormalizer =
+            projectDir.resolve("test-license-normalizer-bundle.json").apply {
+                writeText(
+                    """
+                    {
+                      "bundles": [
+                        {
+                          "bundleName": "test-license",
+                          "licenseName": "Test-License",
+                        }
+                      ],
+                      "transformationRules": [
+                        {
+                          "bundleName": "test-license",
+                          "licenseNamePattern": ".*"
+                        }
+                      ]
+                    }
+                    """.trimIndent(),
+                )
+            }
+        propertiesFile.writeText(
+            """
+            th2.licence.allow-licence-url=file:${customAllowedLicense.absolutePath}
+            th2.licence.license-normalizer-bundle-path=${customLicenseNormalizer.absolutePath}
+            """.trimIndent(),
+        )
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withConfiguredVersion()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    "checkLicense",
+                    // because no git repository exist in test
+                    "-x",
+                    "generateGitProperties",
+                )
+                .build()
+
+        val checkLicenses = result.task(":checkLicense")
+        assertNotNull(checkLicenses, "task checkLicense was not executed") {
+            assertEquals(TaskOutcome.SUCCESS, it.outcome, "unexpected task result")
+        }
+
+        val licenses = MAPPER.readTree(projectDir.resolve("build/reports/dependency-license/licenses.json"))
+        assertIs<ObjectNode>(licenses, "incorrect licenses file structure")
+        val dependencies = assertIs<ArrayNode>(licenses.get("dependencies"), "dependencies must be a collection")
+
+        val assertion = { node: ArrayNode, moduleName: String ->
+            assertAll(
+                node.mapIndexed { index, ml ->
+                    {
+                        assertNotNull(
+                            ml.get("moduleLicense"),
+                            "module $moduleName[$index] does not have moduleLicense field",
+                        ) { l ->
+                            assertIs<TextNode>(l, "module $moduleName[$index] moduleLicense field must be a test")
+                            assertEquals(
+                                "Test-License",
+                                l.textValue(),
+                                "module $moduleName[$index] moduleLicense field has incorrect license",
+                            )
+                        }
+                    }
+                },
+            )
+        }
+
+        assertAll(
+            {
+                dependencies.assertHasModuleLicenses("io.ktor:ktor-bom", assertion)
+            },
+            {
+                dependencies.assertHasModuleLicenses("io.ktor:ktor-server-default-headers", assertion)
+            },
+        )
+    }
+
+    private fun ArrayNode.assertHasModuleLicenses(
+        moduleName: String,
+        extraAssertion: (ArrayNode, String) -> Unit = { _, _ -> },
+    ) {
         val module =
             elements().asSequence()
                 .find { it.get("moduleName").textValue() == moduleName }
         assertNotNull(module, "module $moduleName not found") { m ->
-            val moduleInfo = assertIs<ObjectNode>(m, "module info muse be an object")
+            val moduleInfo = assertIs<ObjectNode>(m, "module info must be an object")
             assertNotNull(moduleInfo.get("moduleLicenses"), "module $moduleName does not have licenses") {
                 assertIs<ArrayNode>(it, "module $moduleName licenses must be a collection")
                 assertFalse(it.isEmpty, "module $moduleName has empty licenses collection")
+                extraAssertion(it, moduleName)
             }
         }
     }

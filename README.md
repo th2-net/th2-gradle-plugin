@@ -30,6 +30,15 @@ Third-party plugins applied under the hood:
 - [com.gorylenko.gradle-git-properties](https://github.com/n0mer/gradle-git-properties)
 - [org.owasp.dependencycheck](https://github.com/dependency-check/dependency-check-gradle)
 
+#### Configuration properties
+
+* `th2.licence.allow-licence-url` - provides a URL to download a file with allowed licenses for the `com.github.jk1.dependency-license-report` plugin.<br>
+  _*NOTE: This property should be used only for debugging the file's content with allowed licenses.*_<br>
+  By default, the file is downloaded from <https://raw.githubusercontent.com/th2-net/.github/main/license-compliance/gradle-license-report/allowed-licenses.json> URL.
+* `th2.licence.license-normalizer-bundle-path` - provides a path to a file with license normalizer bundle for the `com.github.jk1.dependency-license-report` plugin.<br>
+  _*NOTE: This property should only be used for debugging content of the license normalizer bundle.*_<br>
+  By default, the `base` plugin downloads the file from <https://raw.githubusercontent.com/th2-net/.github/main/license-compliance/gradle-license-report/license-normalizer-bundle.json> URL and stores it in the project's build directory.
+
 ### com.exactpro.th2.gradle.grpc
 
 This plugin prepares the project to be built as gRPC library for th2 component.

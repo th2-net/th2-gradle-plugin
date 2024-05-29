@@ -33,11 +33,16 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
+import java.io.File
 import java.net.URL
 
 private const val JAVA_VERSION_PROP = "java.version"
 
 private const val JAVA_VENDOR_PROP = "java.vendor"
+
+internal const val TH2_LICENCE_ALLOW_LICENCE_URL_PROP = "th2.licence.allow-licence-url"
+
+internal const val TH2_LICENCE_LICENSE_NORMALIZER_BUNDLE_PATH_PROP = "th2.licence.license-normalizer-bundle-path"
 
 private const val BASE_EXTERNAL_CONFIGURATION_URL = "https://raw.githubusercontent.com/th2-net/.github/main"
 
@@ -90,14 +95,18 @@ class BaseTh2Plugin : Plugin<Project> {
     private fun configureLicenseReport(project: Project) {
         project.pluginManager.apply(LicenseReportPlugin::class.java)
         project.extensions.getByType<LicenseReportExtension>().apply {
-            val licenseNormalizerBundlePath = project.buildDir.resolve("license-normalizer-bundle.json")
+            var licenseNormalizerBundlePath =
+                project.findProperty(TH2_LICENCE_LICENSE_NORMALIZER_BUNDLE_PATH_PROP)?.toString()?.let(::File)
 
-            if (!licenseNormalizerBundlePath.exists()) {
-                DownloadAction(project).apply {
-                    src("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/license-normalizer-bundle.json")
-                    dest(licenseNormalizerBundlePath)
-                    overwrite(false)
-                }.execute().get()
+            if (licenseNormalizerBundlePath == null) {
+                licenseNormalizerBundlePath = project.buildDir.resolve("license-normalizer-bundle.json")
+                if (!licenseNormalizerBundlePath.exists()) {
+                    DownloadAction(project).apply {
+                        src("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/license-normalizer-bundle.json")
+                        dest(licenseNormalizerBundlePath)
+                        overwrite(false)
+                    }.execute().get()
+                }
             }
 
             filters =
@@ -106,7 +115,11 @@ class BaseTh2Plugin : Plugin<Project> {
                 )
             renderers = arrayOf(JsonReportRenderer("licenses.json", false))
             excludeOwnGroup = true
-            allowedLicensesFile = URL("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/allowed-licenses.json")
+            allowedLicensesFile =
+                URL(
+                    project.findProperty(TH2_LICENCE_ALLOW_LICENCE_URL_PROP)?.toString()
+                        ?: "$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/allowed-licenses.json",
+                )
         }
     }
 
