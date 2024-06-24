@@ -30,6 +30,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningExtension
@@ -47,6 +48,8 @@ private const val SONATYPE_SNAPSHOT_URL = "https://s01.oss.sonatype.org/content/
 private const val JAVA_PLATFORM_COMPONENT_NAME = "javaPlatform"
 
 private const val JAVA_COMPONENT_NAME = JvmConstants.JAVA_COMPONENT_NAME
+
+private const val NEXUS_CLOSE_AND_RELEASE_TASK = "closeAndReleaseStagingRepositories"
 
 class PublishTh2Plugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -85,6 +88,19 @@ class PublishTh2Plugin : Plugin<Project> {
                         username.set(extension.sonatype.username)
                         password.set(extension.sonatype.password)
                     }
+                }
+            }
+            project.tasks.register("closeAndReleaseStagingRepository") {
+                group = "publishing"
+                description = "task for backward compatibility with version before 2.0.0"
+                dependsOn(project.tasks.named(NEXUS_CLOSE_AND_RELEASE_TASK))
+
+                doLast {
+                    logger.warn(
+                        "This task was removed from nexus-publish plugin since version 2.0.0. " +
+                            "Consider migrating to {}",
+                        NEXUS_CLOSE_AND_RELEASE_TASK,
+                    )
                 }
             }
         }
@@ -138,7 +154,10 @@ class PublishTh2Plugin : Plugin<Project> {
         extension: PublishTh2Extension,
     ) {
         val errors = arrayListOf<String>()
-        if (extension.pom.vcsUrl.getOrElse("").isEmpty()) {
+        if (extension.pom.vcsUrl
+                .getOrElse("")
+                .isEmpty()
+        ) {
             errors += "vcs url is not provided (use th2Publish.pom extension or vcs_url property)"
         }
         if (project.description.isNullOrEmpty()) {
