@@ -44,7 +44,7 @@ configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRunt
 functionalTest {
     testingStrategies.set(
         listOf(
-            strategies.coverageForGradleVersion("7.6"),
+            strategies.coverageForGradleVersion("8.4"),
             strategies.coverageForLatestGlobalAvailableVersion,
             strategies.coverageForGradleVersion(GradleVersion.current().version),
         ),
