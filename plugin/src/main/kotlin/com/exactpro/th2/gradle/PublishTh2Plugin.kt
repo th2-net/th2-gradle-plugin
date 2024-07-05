@@ -30,7 +30,6 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningExtension
@@ -47,7 +46,7 @@ private const val SONATYPE_SNAPSHOT_URL = "https://s01.oss.sonatype.org/content/
 
 private const val JAVA_PLATFORM_COMPONENT_NAME = "javaPlatform"
 
-private const val JAVA_COMPONENT_NAME = JvmConstants.JAVA_COMPONENT_NAME
+private const val JAVA_COMPONENT_NAME = JvmConstants.JAVA_MAIN_COMPONENT_NAME
 
 private const val NEXUS_CLOSE_AND_RELEASE_TASK = "closeAndReleaseStagingRepositories"
 
