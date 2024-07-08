@@ -31,6 +31,7 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
+import org.gradle.util.GradleVersion
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import java.io.File
@@ -74,6 +75,9 @@ class BaseTh2Plugin : Plugin<Project> {
     }
 
     private fun configureOwasp(project: Project) {
+        check(GradleVersion.current() >= GradleVersion.version("8.4")) {
+            "Gradle '8.4' version or higher is required to use OWASP 9.1.0+ plugin"
+        }
         project.pluginManager.apply(DependencyCheckPlugin::class.java)
         project.extensions.getByType<DependencyCheckExtension>().apply {
             formats = listOf("SARIF", "JSON", "HTML")
@@ -99,7 +103,7 @@ class BaseTh2Plugin : Plugin<Project> {
                 project.findProperty(TH2_LICENCE_LICENSE_NORMALIZER_BUNDLE_PATH_PROP)?.toString()?.let(::File)
 
             if (licenseNormalizerBundlePath == null) {
-                licenseNormalizerBundlePath = project.buildDir.resolve("license-normalizer-bundle.json")
+                licenseNormalizerBundlePath = project.layout.buildDirectory.asFile.get().resolve("license-normalizer-bundle.json")
                 if (!licenseNormalizerBundlePath.exists()) {
                     DownloadAction(project).apply {
                         src("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/license-normalizer-bundle.json")
