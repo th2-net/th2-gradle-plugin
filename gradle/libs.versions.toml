@@ -7,7 +7,7 @@ kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 gradle-publish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
 build-config = { id = "com.github.gmazzo.buildconfig", version = "5.4.0" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "12.1.1" }
-gradle-functional-test = { id = "dev.gradleplugins.gradle-plugin-functional-test", version = "1.6.12" }
+gradle-functional-test = { id = "dev.gradleplugins.gradle-plugin-functional-test", version = "1.8.0" }
 nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0"}
 
 [libraries]
