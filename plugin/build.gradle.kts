@@ -38,8 +38,11 @@ dependencies {
     testRuntimeOnly(libs.junit.launcher)
 }
 
-configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
-configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+// functional* configurations aren't applied before evaluation
+afterEvaluate {
+    configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
+    configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+}
 
 functionalTest {
     testingStrategies.set(
