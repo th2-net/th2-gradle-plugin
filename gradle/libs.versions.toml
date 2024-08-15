@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.8.20"
+kotlin = "2.0.10"
 ktlint = "1.2.1"
 
 [plugins]
