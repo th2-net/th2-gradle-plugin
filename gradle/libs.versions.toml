@@ -24,6 +24,6 @@ junit-launcher = { group = "org.junit.platform", name = "junit-platform-launcher
 junit-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5" }
 kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 protoc = { group = "com.google.protobuf", name = "protoc", version = "3.25.3" }
-grpc-protoc-plugin = { group = "io.grpc", name = "protoc-gen-grpc-java", version = "1.62.2" }
+grpc-protoc-plugin = { group = "io.grpc", name = "protoc-gen-grpc-java", version = "1.66.0" }
 grpc-service-generator = { group = "com.exactpro.th2", name = "grpc-service-generator", version = "3.6.1" }
 th2-bom = { group = "com.exactpro.th2", name = "bom", version = "4.6.1" }
