@@ -20,6 +20,7 @@ import com.github.jk1.license.LicenseReportPlugin
 import com.gorylenko.GitPropertiesPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.the
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -29,7 +30,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
+import org.owasp.dependencycheck.gradle.extension.AnalyzerExtension
+import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
+import org.owasp.dependencycheck.gradle.extension.NvdExtension
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @TestInstance(PER_CLASS)
@@ -37,9 +44,7 @@ internal class BaseTh2PluginTest {
     @ParameterizedTest(name = "when {0} plugin applied")
     @MethodSource("requiredPlugins")
     fun `applies required plugins`(javaPlugin: String) {
-        val project =
-            ProjectBuilder.builder()
-                .build()
+        val project = ProjectBuilder.builder().build()
 
         project.pluginManager.apply(javaPlugin)
         project.pluginManager.apply("com.exactpro.th2.gradle.base")
@@ -48,15 +53,14 @@ internal class BaseTh2PluginTest {
             { assertHasPlugin(project, LicenseReportPlugin::class.java) },
             { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
             { assertHasBomDependency(project, "implementation") },
+            { assertDependencyCheck(project.the<DependencyCheckExtension>()) },
         )
     }
 
     @ParameterizedTest(name = "when {0} required plugin applied")
     @MethodSource("requiredPlugins")
     fun `applies test fixtures plugin`(javaPlugin: String) {
-        val project =
-            ProjectBuilder.builder()
-                .build()
+        val project = ProjectBuilder.builder().build()
 
         project.pluginManager.apply(javaPlugin)
         project.pluginManager.apply("java-test-fixtures")
@@ -73,16 +77,43 @@ internal class BaseTh2PluginTest {
     @Test
     fun `reports error if applied not to the root project`() {
         val root =
-            ProjectBuilder.builder()
-                .build()
-        val subProject =
-            ProjectBuilder.builder()
-                .withParent(root)
-                .build()
+            ProjectBuilder.builder().build()
+        val subProject = ProjectBuilder.builder().withParent(root).build()
 
         assertThrows<Exception> {
             subProject.pluginManager.apply(BaseTh2Plugin::class.java)
         }
+    }
+
+    @Test
+    fun `apply properties for dependency check extension`() {
+        val nvdApiKey = "test-nvdApiKey"
+        val nvdDelay = 9_999
+        val nvdDatafeedUrl = "https://nvdDatafeedUrl.test"
+        val analyzersKnownExploitedURL = "https://knownExploitedURL.test"
+        val project = ProjectBuilder.builder().build()
+
+        project.extensions.extraProperties["nvdApiKey"] = nvdApiKey
+        project.extensions.extraProperties["nvdDelay"] = nvdDelay.toString()
+        project.extensions.extraProperties["nvdDatafeedUrl"] = nvdDatafeedUrl
+        project.extensions.extraProperties["analyzersKnownExploitedURL"] = analyzersKnownExploitedURL
+        project.pluginManager.apply("com.exactpro.th2.gradle.base")
+
+        val dependencyCheckExtension = project.the<DependencyCheckExtension>()
+        val nvd = dependencyCheckExtension.nvd
+        val analyzers = dependencyCheckExtension.analyzers
+        assertAll(
+            { assertEquals(nvdApiKey, nvd.apiKey, "unexpected dependencyCheck.nvd.apiKey") },
+            { assertEquals(nvdDelay, nvd.delay, "unexpected dependencyCheck.nvd.nvdDelay") },
+            { assertEquals(nvdDatafeedUrl, nvd.datafeedUrl, "unexpected dependencyCheck.nvd.datafeedUrl") },
+            {
+                assertEquals(
+                    analyzersKnownExploitedURL,
+                    analyzers.knownExploitedURL,
+                    "unexpected dependencyCheck.analyzers.knownExploitedURL",
+                )
+            },
+        )
     }
 
     private fun <T : Plugin<*>> assertHasPlugin(
@@ -112,4 +143,39 @@ internal class BaseTh2PluginTest {
     }
 
     private fun requiredPlugins() = listOf("java", "java-library", "org.jetbrains.kotlin.jvm")
+
+    private fun assertDependencyCheck(extension: DependencyCheckExtension) =
+        assertAll(
+            {
+                assertEquals(
+                    listOf("SARIF", "JSON", "HTML"),
+                    extension.formats,
+                    "unexpected dependency check formats",
+                )
+            },
+            {
+                assertEquals(
+                    5.0f,
+                    extension.failBuildOnCVSS,
+                    "unexpected dependency check failBuildOnCVSS",
+                )
+            },
+            { assertNvd(extension.nvd) },
+            { assertAnalyzers(extension.analyzers) },
+        )
+
+    private fun assertAnalyzers(extension: AnalyzerExtension) =
+        assertAll(
+            { assertFalse(extension.assemblyEnabled, "unexpected analyzers.assemblyEnabled") },
+            { assertFalse(extension.nugetconfEnabled, "unexpected analyzers.nugetconfEnabled") },
+            { assertFalse(extension.nodeEnabled, "unexpected analyzers.nodeEnabled") },
+            { assertNull(extension.knownExploitedURL, "unexpected analyzers.knownExploitedURL") },
+        )
+
+    private fun assertNvd(extension: NvdExtension) =
+        assertAll(
+            { assertNull(extension.apiKey, "unexpected dependency check nvd.apiKey") },
+            { assertEquals(10_000, extension.delay, "unexpected dependency check nvd.delay") },
+            { assertNull(extension.datafeedUrl, "unexpected dependency check nvd.datafeedUrl") },
+        )
 }

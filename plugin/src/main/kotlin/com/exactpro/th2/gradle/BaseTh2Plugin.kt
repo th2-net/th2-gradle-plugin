@@ -86,12 +86,15 @@ class BaseTh2Plugin : Plugin<Project> {
             nvd.apply {
                 apiKey = project.findProperty("nvdApiKey") as? String
                 delay = (project.findProperty("nvdDelay") as? String)?.toInt() ?: 10_000
+                datafeedUrl = project.findProperty("nvdDatafeedUrl") as? String
             }
 
             analyzers.apply {
                 assemblyEnabled = false
                 nugetconfEnabled = false
                 nodeEnabled = false
+
+                knownExploitedURL = project.findProperty("analyzersKnownExploitedURL") as? String
             }
         }
     }
