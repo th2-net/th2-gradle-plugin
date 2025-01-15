@@ -56,12 +56,12 @@ class Th2ComponentGradlePluginFunctionalTest {
             repositories {
                 mavenCentral()
                 maven {
-                    name 'Sonatype_snapshots'
-                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    name = 'Sonatype_snapshots'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 }
                 maven {
-                    name 'Sonatype_releases'
-                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    name = 'Sonatype_releases'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
                 }
             }
             
@@ -122,12 +122,12 @@ class Th2ComponentGradlePluginFunctionalTest {
             repositories {
                 mavenCentral()
                 maven {
-                    name 'Sonatype_snapshots'
-                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    name = 'Sonatype_snapshots'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 }
                 maven {
-                    name 'Sonatype_releases'
-                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    name = 'Sonatype_releases'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
                 }
             }
             
