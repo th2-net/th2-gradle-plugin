@@ -16,14 +16,15 @@
 
 package com.exactpro.th2.gradle
 
-import com.palantir.gradle.docker.DockerExtension
-import com.palantir.gradle.docker.PalantirDockerPlugin
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Delete
+import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.the
 
 class ComponentTh2Plugin : Plugin<Project> {
@@ -36,12 +37,22 @@ class ComponentTh2Plugin : Plugin<Project> {
                 pluginManager.apply(ApplicationPlugin::class.java)
             }
             the<JavaApplication>().applicationName = "service"
-            pluginManager.apply(PalantirDockerPlugin::class.java)
-            the<DockerExtension>().apply {
-                copySpec.from("$buildDir/install")
+            val dockerExtension = extensions.create("docker", DockerTh2Extension::class.java)
+            dockerExtension.copySpec.from(project.layout.buildDirectory.dir("install"))
+
+            val dockerDir = project.layout.buildDirectory.dir("docker")
+
+            val dockerClean = tasks.register<Delete>("dockerClean") {
+                delete(dockerDir)
             }
-            tasks.getByName("dockerPrepare")
-                .dependsOn(tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME))
+
+            tasks.register<Copy>("dockerPrepare") {
+                dependsOn(tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME), dockerClean)
+
+                with(dockerExtension.copySpec)
+
+                into(dockerDir)
+            }
 
             afterEvaluate {
                 if (version.toString().let { it == Project.DEFAULT_VERSION || it.isEmpty() }) {

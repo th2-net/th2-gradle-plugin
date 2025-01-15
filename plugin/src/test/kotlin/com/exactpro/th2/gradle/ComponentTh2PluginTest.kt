@@ -43,12 +43,6 @@ class ComponentTh2PluginTest {
             },
             {
                 assertTrue(
-                    project.plugins.hasPlugin(PalantirDockerPlugin::class.java),
-                    "docker plugin was not applied",
-                )
-            },
-            {
-                assertTrue(
                     project.tasks.getByName("dockerPrepare").dependsOn
                         .contains(project.tasks.getByName("installDist")),
                     "installDist dependency was not added to docker task",
