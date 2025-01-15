@@ -28,7 +28,6 @@ dependencies {
 
     implementation(libs.owasp)
 
-    implementation(libs.docker)
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junit.bom))

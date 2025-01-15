@@ -41,6 +41,9 @@ class Th2ComponentGradlePluginFunctionalTest {
             rootProject.name = "test"
             """.trimIndent(),
         )
+
+        val extraFile = "extra.txt"
+
         buildFile.writeText(
             """
             plugins {
@@ -53,20 +56,26 @@ class Th2ComponentGradlePluginFunctionalTest {
             repositories {
                 mavenCentral()
                 maven {
-                    name 'Sonatype_snapshots'
-                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    name = 'Sonatype_snapshots'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 }
                 maven {
-                    name 'Sonatype_releases'
-                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    name = 'Sonatype_releases'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
                 }
             }
             
             application {
                 mainClass.set('test.Main')
             }
+            
+            docker {
+                copySpec.from("$extraFile")
+            }
             """.trimIndent(),
         )
+
+        projectDir.resolve(extraFile).writeText("Hello World!")
 
         val result =
             GradleRunner.create()
@@ -90,6 +99,9 @@ class Th2ComponentGradlePluginFunctionalTest {
         assertAll(
             { assertEquals(TaskOutcome.SUCCESS, result.task(":dockerPrepare")?.outcome, "unexpected preparation result") },
             { assertFileExist(dockerDirectory / "service") },
+            { assertFileExist(dockerDirectory / "service" / "bin") },
+            { assertFileExist(dockerDirectory / "service" / "lib") },
+            { assertFileExist(dockerDirectory / extraFile) },
         )
     }
 
@@ -110,12 +122,12 @@ class Th2ComponentGradlePluginFunctionalTest {
             repositories {
                 mavenCentral()
                 maven {
-                    name 'Sonatype_snapshots'
-                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    name = 'Sonatype_snapshots'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 }
                 maven {
-                    name 'Sonatype_releases'
-                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    name = 'Sonatype_releases'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
                 }
             }
             

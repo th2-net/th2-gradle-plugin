@@ -16,7 +16,6 @@
 
 package com.exactpro.th2.gradle
 
-import com.palantir.gradle.docker.PalantirDockerPlugin
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.kotlin.dsl.the
@@ -24,6 +23,8 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class ComponentTh2PluginTest {
@@ -42,10 +43,12 @@ class ComponentTh2PluginTest {
                 )
             },
             {
-                assertTrue(
-                    project.plugins.hasPlugin(PalantirDockerPlugin::class.java),
-                    "docker plugin was not applied",
-                )
+                assertNotNull(
+                    project.extensions.findByName("docker"),
+                    "no 'docker' extension found",
+                ) {
+                    assertIs<DockerTh2Extension>(it, "incorrect extension type")
+                }
             },
             {
                 assertTrue(

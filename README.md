@@ -84,10 +84,6 @@ Third-party plugins applied under the hood:
 This plugin prepares the project to be packaged as Docker image.
 The project **MUST** use `application` plugin to package the component.
 
-Third-party plugins applied under the hood:
-
-- [com.palantir.docker](https://github.com/palantir/gradle-docker)
-
 ## Apply from Sonatype repository
 
 Until this plugin is not published to Gradle portal it can be applied from Sonatype repository.

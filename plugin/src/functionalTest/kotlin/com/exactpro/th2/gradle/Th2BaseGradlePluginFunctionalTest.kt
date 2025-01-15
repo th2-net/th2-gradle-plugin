@@ -61,8 +61,8 @@ class Th2BaseGradlePluginFunctionalTest {
             }
             
             dependencies {
-                implementation platform('io.ktor:ktor-bom:2.3.3')
-                implementation 'io.ktor:ktor-server'
+                implementation(platform('io.ktor:ktor-bom:2.3.3'))
+                implementation('io.ktor:ktor-server')
             }
             """.trimIndent(),
         )
@@ -120,8 +120,8 @@ class Th2BaseGradlePluginFunctionalTest {
             }
             
             dependencies {
-                implementation platform('io.ktor:ktor-bom:2.3.3')
-                implementation 'io.ktor:ktor-server'
+                implementation(platform('io.ktor:ktor-bom:2.3.3'))
+                implementation('io.ktor:ktor-server')
             }
             """.trimIndent(),
         )

@@ -20,13 +20,12 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
-import org.junit.jupiter.api.io.CleanupMode
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
 
 class Th2GrpcGradlePluginFunctionalTest {
-    @field:TempDir(cleanup = CleanupMode.ON_SUCCESS)
+    @field:TempDir
     lateinit var projectDir: File
 
     @Test
@@ -48,12 +47,12 @@ class Th2GrpcGradlePluginFunctionalTest {
             repositories {
                 mavenCentral()
                 maven {
-                    name 'Sonatype_snapshots'
-                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    name = 'Sonatype_snapshots'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 }
                 maven {
-                    name 'Sonatype_releases'
-                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    name = 'Sonatype_releases'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
                 }
             }
             """.trimIndent(),
@@ -101,8 +100,8 @@ class Th2GrpcGradlePluginFunctionalTest {
             repositories {
                 mavenCentral()
                 maven {
-                    name 'Sonatype_snapshots'
-                    url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    name = 'Sonatype_snapshots'
+                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                 }
                 maven {
                     name 'Sonatype_releases'
@@ -165,12 +164,12 @@ class Th2GrpcGradlePluginFunctionalTest {
                 repositories {
                     mavenCentral()
                     maven {
-                        name 'Sonatype_snapshots'
-                        url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                        name = 'Sonatype_snapshots'
+                        url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
                     }
                     maven {
-                        name 'Sonatype_releases'
-                        url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                        name = 'Sonatype_releases'
+                        url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
                     }
                 }
             }
