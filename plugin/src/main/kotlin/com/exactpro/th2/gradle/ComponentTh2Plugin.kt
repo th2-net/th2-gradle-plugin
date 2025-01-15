@@ -42,9 +42,10 @@ class ComponentTh2Plugin : Plugin<Project> {
 
             val dockerDir = project.layout.buildDirectory.dir("docker")
 
-            val dockerClean = tasks.register<Delete>("dockerClean") {
-                delete(dockerDir)
-            }
+            val dockerClean =
+                tasks.register<Delete>("dockerClean") {
+                    delete(dockerDir)
+                }
 
             tasks.register<Copy>("dockerPrepare") {
                 dependsOn(tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME), dockerClean)

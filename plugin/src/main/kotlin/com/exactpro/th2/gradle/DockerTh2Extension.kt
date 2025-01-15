@@ -24,6 +24,8 @@ import javax.inject.Inject
  * [DockerTh2Extension] emulates the extension from [https://github.com/palantir/gradle-docker] plugin
  * that was used before. Right now it is no longer supported and we removed it from our dependencies
  */
-abstract class DockerTh2Extension @Inject constructor(private val project: Project) {
-    val copySpec: CopySpec = project.copySpec()
-}
+abstract class DockerTh2Extension
+    @Inject
+    constructor(private val project: Project) {
+        val copySpec: CopySpec = project.copySpec()
+    }
