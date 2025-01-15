@@ -41,6 +41,9 @@ class Th2ComponentGradlePluginFunctionalTest {
             rootProject.name = "test"
             """.trimIndent(),
         )
+
+        val extraFile = "extra.txt"
+
         buildFile.writeText(
             """
             plugins {
@@ -65,8 +68,14 @@ class Th2ComponentGradlePluginFunctionalTest {
             application {
                 mainClass.set('test.Main')
             }
+            
+            docker {
+                copySpec.from("$extraFile")
+            }
             """.trimIndent(),
         )
+
+        projectDir.resolve(extraFile).writeText("Hello World!")
 
         val result =
             GradleRunner.create()
@@ -90,6 +99,9 @@ class Th2ComponentGradlePluginFunctionalTest {
         assertAll(
             { assertEquals(TaskOutcome.SUCCESS, result.task(":dockerPrepare")?.outcome, "unexpected preparation result") },
             { assertFileExist(dockerDirectory / "service") },
+            { assertFileExist(dockerDirectory / "service" / "bin") },
+            { assertFileExist(dockerDirectory / "service" / "lib") },
+            { assertFileExist(dockerDirectory / extraFile) },
         )
     }
 
