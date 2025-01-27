@@ -11,11 +11,15 @@ jobs:
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 11
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
          gradle-version: wrapper
+         validate-wrappers: 'true'
       - name: Run build with Gradle
         run: ./gradlew clean build --info
