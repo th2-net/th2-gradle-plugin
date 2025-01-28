@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
@@ -11,6 +12,18 @@ plugins {
     alias(libs.plugins.build.config)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.gradle.functional.test)
+}
+
+java {
+    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_11
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
+        freeCompilerArgs.add("-Xjdk-release=11")
+    }
 }
 
 repositories {
