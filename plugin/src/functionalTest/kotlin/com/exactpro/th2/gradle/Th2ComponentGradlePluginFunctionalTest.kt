@@ -16,13 +16,14 @@
 
 package com.exactpro.th2.gradle
 
-import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -77,22 +78,7 @@ class Th2ComponentGradlePluginFunctionalTest {
 
         projectDir.resolve(extraFile).writeText("Hello World!")
 
-        val result =
-            GradleRunner.create()
-                .forwardOutput()
-                .withDebug(true)
-                .withConfiguredVersion()
-                .withPluginClasspath()
-                .withProjectDir(projectDir)
-                .withArguments(
-                    "--stacktrace",
-                    "dockerPrep",
-                    // because no git repository exist in test
-                    "-x",
-                    "generateGitProperties",
-                )
-                .build()
-
+        val result = runBuild(projectDir)
         val buildDirectory = projectDir / "build"
         val dockerDirectory = buildDirectory / "docker"
 
@@ -137,27 +123,47 @@ class Th2ComponentGradlePluginFunctionalTest {
             """.trimIndent(),
         )
 
-        val exception =
-            assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
-                    .forwardOutput()
-                    .withDebug(true)
-                    .withConfiguredVersion()
-                    .withPluginClasspath()
-                    .withProjectDir(projectDir)
-                    .withArguments(
-                        "--stacktrace",
-                        "dockerPrep",
-                        // because no git repository exist in test
-                        "-x",
-                        "generateGitProperties",
-                    )
-                    .build()
-            }
+        val exception = assertThrows<UnexpectedBuildFailure> { runBuild(projectDir) }
 
         assertContains(
             exception.buildResult.output,
             "project 'test' missing version (use version property to provide the version)",
+            message = "unexpected error",
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "",
+            "application.mainClass.set('')",
+            "application.mainClass.set(' ')",
+        ],
+    )
+    fun `reports error if application main class is incorrect`(appConfiguration: String) {
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('application')
+                id('com.exactpro.th2.gradle.component')
+            }
+            
+            version = "1.0.0"
+            
+            $appConfiguration
+            """.trimIndent(),
+        )
+
+        val exception = assertThrows<UnexpectedBuildFailure> { runBuild(projectDir) }
+
+        assertContains(
+            exception.buildResult.output,
+            "project 'test' missing or blank 'application.mainClass' property",
             message = "unexpected error",
         )
     }
