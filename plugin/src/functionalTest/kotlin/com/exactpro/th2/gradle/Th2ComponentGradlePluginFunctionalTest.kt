@@ -163,7 +163,7 @@ class Th2ComponentGradlePluginFunctionalTest {
 
         assertContains(
             exception.buildResult.output,
-            "project 'test' missing or blank 'application.mainClass' property",
+            "project 'test' missing or has a blank value in 'application.mainClass' property",
             message = "unexpected error",
         )
     }
