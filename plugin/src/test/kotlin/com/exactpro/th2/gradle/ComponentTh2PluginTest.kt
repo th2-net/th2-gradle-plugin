@@ -36,7 +36,8 @@ class ComponentTh2PluginTest {
     @Test
     fun `applies all required plugins`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.pluginManager.apply(ComponentTh2Plugin::class.java)
@@ -58,7 +59,9 @@ class ComponentTh2PluginTest {
             },
             {
                 assertTrue(
-                    project.tasks.getByName("dockerPrepare").dependsOn
+                    project.tasks
+                        .getByName("dockerPrepare")
+                        .dependsOn
                         .contains(project.tasks.getByName("installDist")),
                     "installDist dependency was not added to docker task",
                 )
@@ -76,7 +79,8 @@ class ComponentTh2PluginTest {
     @Test
     fun `main class is specified`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
         project.version = "1.0.0"
         project.pluginManager.apply(ComponentTh2Plugin::class.java)
@@ -89,7 +93,8 @@ class ComponentTh2PluginTest {
     @Test
     fun `main class isn't specified`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
         project.version = "1.0.0"
         project.pluginManager.apply(ComponentTh2Plugin::class.java)
@@ -104,7 +109,8 @@ class ComponentTh2PluginTest {
     @ValueSource(strings = ["", " "])
     fun `main class has incorrect value`(mainClass: String) {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
         project.version = "1.0.0"
         project.pluginManager.apply(ComponentTh2Plugin::class.java)
@@ -115,6 +121,4 @@ class ComponentTh2PluginTest {
             (project as DefaultProject).evaluate()
         }
     }
-
-
 }
