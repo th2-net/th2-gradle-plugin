@@ -61,7 +61,7 @@ class ComponentTh2Plugin : Plugin<Project> {
                     throw GradleException("project '$name' missing version (use version property to provide the version)")
                 }
                 if (the<JavaApplication>().mainClass.getOrElse("").isBlank()) {
-                    throw GradleException("project '$name' missing or blank '${APPLICATION_PLUGIN_NAME}.mainClass' property")
+                    throw GradleException("project '$name' missing or has a blank value in '${APPLICATION_PLUGIN_NAME}.mainClass' property")
                 }
             }
         }
