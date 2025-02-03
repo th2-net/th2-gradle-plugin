@@ -60,8 +60,7 @@ class ComponentTh2Plugin : Plugin<Project> {
                 if (version.toString().let { it == Project.DEFAULT_VERSION || it.isEmpty() }) {
                     throw GradleException("project '$name' missing version (use version property to provide the version)")
                 }
-                val mainClass = the<JavaApplication>().mainClass
-                if (!mainClass.isPresent || mainClass.get().isBlank()) {
+                if (the<JavaApplication>().mainClass.getOrElse("").isBlank()) {
                     throw GradleException("project '$name' missing or blank '${APPLICATION_PLUGIN_NAME}.mainClass' property")
                 }
             }
