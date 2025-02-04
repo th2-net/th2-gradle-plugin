@@ -16,6 +16,7 @@
 
 package com.exactpro.th2.gradle
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
@@ -25,3 +26,19 @@ internal fun GradleRunner.withConfiguredVersion(): GradleRunner =
     apply {
         System.getProperty("dev.gradleplugins.defaultGradleVersion").also(this::withGradleVersion)
     }
+
+internal fun runBuild(projectDir: File): BuildResult =
+    GradleRunner
+        .create()
+        .forwardOutput()
+        .withDebug(true)
+        .withConfiguredVersion()
+        .withPluginClasspath()
+        .withProjectDir(projectDir)
+        .withArguments(
+            "--stacktrace",
+            "dockerPrep",
+            // because no git repository exist in test
+            "-x",
+            "generateGitProperties",
+        ).build()

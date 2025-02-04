@@ -21,6 +21,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.ApplicationPlugin.APPLICATION_PLUGIN_NAME
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
@@ -58,6 +59,9 @@ class ComponentTh2Plugin : Plugin<Project> {
             afterEvaluate {
                 if (version.toString().let { it == Project.DEFAULT_VERSION || it.isEmpty() }) {
                     throw GradleException("project '$name' missing version (use version property to provide the version)")
+                }
+                if (the<JavaApplication>().mainClass.getOrElse("").isBlank()) {
+                    throw GradleException("project '$name' missing or has a blank value in '${APPLICATION_PLUGIN_NAME}.mainClass' property")
                 }
             }
         }

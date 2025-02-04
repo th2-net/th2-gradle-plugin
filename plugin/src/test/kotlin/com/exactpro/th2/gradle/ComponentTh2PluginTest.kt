@@ -31,7 +31,8 @@ class ComponentTh2PluginTest {
     @Test
     fun `applies all required plugins`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
         project.pluginManager.apply(ComponentTh2Plugin::class.java)
 
@@ -52,7 +53,9 @@ class ComponentTh2PluginTest {
             },
             {
                 assertTrue(
-                    project.tasks.getByName("dockerPrepare").dependsOn
+                    project.tasks
+                        .getByName("dockerPrepare")
+                        .dependsOn
                         .contains(project.tasks.getByName("installDist")),
                     "installDist dependency was not added to docker task",
                 )
