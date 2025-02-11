@@ -94,7 +94,9 @@ class BaseTh2Plugin : Plugin<Project> {
                 nugetconfEnabled = false
                 nodeEnabled = false
 
-                knownExploitedURL = project.findProperty("analyzersKnownExploitedURL") as? String
+                kev.apply {
+                    url = project.findProperty("analyzersKnownExploitedURL") as? String
+                }
             }
         }
     }
@@ -106,13 +108,18 @@ class BaseTh2Plugin : Plugin<Project> {
                 project.findProperty(TH2_LICENCE_LICENSE_NORMALIZER_BUNDLE_PATH_PROP)?.toString()?.let(::File)
 
             if (licenseNormalizerBundlePath == null) {
-                licenseNormalizerBundlePath = project.layout.buildDirectory.asFile.get().resolve("license-normalizer-bundle.json")
+                licenseNormalizerBundlePath =
+                    project.layout.buildDirectory.asFile
+                        .get()
+                        .resolve("license-normalizer-bundle.json")
                 if (!licenseNormalizerBundlePath.exists()) {
-                    DownloadAction(project).apply {
-                        src("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/license-normalizer-bundle.json")
-                        dest(licenseNormalizerBundlePath)
-                        overwrite(false)
-                    }.execute().get()
+                    DownloadAction(project)
+                        .apply {
+                            src("$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/license-normalizer-bundle.json")
+                            dest(licenseNormalizerBundlePath)
+                            overwrite(false)
+                        }.execute()
+                        .get()
                 }
             }
 

@@ -109,7 +109,7 @@ internal class BaseTh2PluginTest {
             {
                 assertEquals(
                     analyzersKnownExploitedURL,
-                    analyzers.knownExploitedURL,
+                    analyzers.kev.url,
                     "unexpected dependencyCheck.analyzers.knownExploitedURL",
                 )
             },
@@ -142,6 +142,7 @@ internal class BaseTh2PluginTest {
         assertNotNull(bom, "bom not found in the $configuration configuration")
     }
 
+    @Suppress("unused")
     private fun requiredPlugins() = listOf("java", "java-library", "org.jetbrains.kotlin.jvm")
 
     private fun assertDependencyCheck(extension: DependencyCheckExtension) =
@@ -169,7 +170,7 @@ internal class BaseTh2PluginTest {
             { assertFalse(extension.assemblyEnabled, "unexpected analyzers.assemblyEnabled") },
             { assertFalse(extension.nugetconfEnabled, "unexpected analyzers.nugetconfEnabled") },
             { assertFalse(extension.nodeEnabled, "unexpected analyzers.nodeEnabled") },
-            { assertNull(extension.knownExploitedURL, "unexpected analyzers.knownExploitedURL") },
+            { assertNull(extension.kev.url, "unexpected analyzers.knownExploitedURL") },
         )
 
     private fun assertNvd(extension: NvdExtension) =
