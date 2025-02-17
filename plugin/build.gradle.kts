@@ -14,16 +14,22 @@ plugins {
     alias(libs.plugins.gradle.functional.test)
 }
 
-private val targetJvmRelease = 11
+private val targetJvmRelease = provider { JavaLanguageVersion.of(11) }
+
+java {
+    val javaVersion = targetJvmRelease.map { JavaVersion.toVersion(it.asInt()) }.get()
+    targetCompatibility = javaVersion
+    sourceCompatibility = javaVersion
+}
 
 tasks.withType<JavaCompile> {
-    options.release.set(targetJvmRelease)
+    options.release.set(targetJvmRelease.map { it.asInt() })
 }
 
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
-        freeCompilerArgs.add("-Xjdk-release=$targetJvmRelease")
+        freeCompilerArgs.add(targetJvmRelease.map { "-Xjdk-release=$it" })
     }
 }
 
