@@ -36,7 +36,7 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import java.io.File
@@ -187,7 +187,7 @@ class BaseTh2Plugin : Plugin<Project> {
         plugins.withId("org.jetbrains.kotlin.jvm") {
             fun JavaVersion.toJdkTarget() = if (ordinal <= JavaVersion.VERSION_1_8.ordinal) "1.$this" else this.toString()
 
-            tasks.withType<KotlinJvmCompile>().configureEach {
+            tasks.withType<KotlinCompile>().configureEach {
                 compilerOptions {
                     jvmTarget.set(extension.targetJavaVersion.map { JvmTarget.fromTarget(it.toJdkTarget()) })
                     freeCompilerArgs.add(

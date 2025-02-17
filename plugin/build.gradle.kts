@@ -54,21 +54,22 @@ dependencies {
 
     implementation(libs.owasp)
 
-    optionalPlugins(libs.kotlin.plugin.api)
+    optionalPlugins(libs.kotlin.plugin)
 
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.parameters)
     testImplementation(libs.junit.kotlin)
-    testImplementation(libs.kotlin.plugin)
+    testRuntimeOnly(libs.kotlin.plugin) {
+        because("required for base plugin unit tests")
+    }
     testRuntimeOnly(libs.junit.launcher)
 }
 
 configurations.configureEach {
     when (name) {
         "functionalTestImplementation" -> extendsFrom(configurations.testImplementation.get())
-        "functionalTestRuntimeOnly" -> extendsFrom(configurations.testRuntimeOnly.get())
         // Required for functional tests because otherwise our plugin and other plugins
         // are loaded with different classloaders, and we cannot find required classes.
         // Works perfectly fine in real projects.

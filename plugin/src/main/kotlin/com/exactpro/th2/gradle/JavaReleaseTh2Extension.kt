@@ -18,7 +18,7 @@ package com.exactpro.th2.gradle
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ abstract class JavaReleaseTh2Extension
          * Defines the target JVM version to compile sources for.
          * Uses, [JavaVersion.VERSION_11] by default
          */
-        val targetJavaVersion: Provider<JavaVersion> =
+        val targetJavaVersion: Property<JavaVersion> =
             project.objects.property<JavaVersion>()
                 .convention(JavaVersion.VERSION_11)
     }
