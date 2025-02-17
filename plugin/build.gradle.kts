@@ -14,15 +14,16 @@ plugins {
     alias(libs.plugins.gradle.functional.test)
 }
 
-java {
-    targetCompatibility = JavaVersion.VERSION_11
-    sourceCompatibility = JavaVersion.VERSION_11
+private val targetJvmRelease = 11
+
+tasks.withType<JavaCompile> {
+    options.release.set(targetJvmRelease)
 }
 
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
-        freeCompilerArgs.add("-Xjdk-release=11")
+        freeCompilerArgs.add("-Xjdk-release=$targetJvmRelease")
     }
 }
 
@@ -30,6 +31,12 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
     gradlePluginDevelopment()
+}
+
+private val optionalPlugins by configurations.creating
+
+configurations.compileOnly.configure {
+    extendsFrom(optionalPlugins)
 }
 
 dependencies {
@@ -41,6 +48,8 @@ dependencies {
 
     implementation(libs.owasp)
 
+    optionalPlugins(libs.kotlin.plugin.api)
+
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junit.bom))
@@ -50,10 +59,15 @@ dependencies {
     testRuntimeOnly(libs.junit.launcher)
 }
 
-// functional* configurations aren't applied before evaluation
-afterEvaluate {
-    configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
-    configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+configurations.configureEach {
+    when (name) {
+        "functionalTestImplementation" -> extendsFrom(configurations.testImplementation.get())
+        "functionalTestRuntimeOnly" -> extendsFrom(configurations.testRuntimeOnly.get())
+        // Required for functional tests because otherwise our plugin and other plugins
+        // are loaded with different classloaders, and we cannot find required classes.
+        // Works perfectly fine in real projects.
+        "functionalTestPluginUnderTest" -> extendsFrom(optionalPlugins)
+    }
 }
 
 functionalTest {
