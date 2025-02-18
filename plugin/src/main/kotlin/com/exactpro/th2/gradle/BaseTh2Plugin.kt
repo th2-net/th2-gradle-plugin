@@ -23,15 +23,20 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.gorylenko.GitPropertiesPlugin
 import de.undercouch.gradle.tasks.download.DownloadAction
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaTestFixturesPlugin
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.gradle.util.GradleVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import java.io.File
@@ -58,12 +63,14 @@ class BaseTh2Plugin : Plugin<Project> {
         check(project === project.rootProject) {
             "th2 base plugin must be applied to the root project"
         }
+        val javaRelease = project.extensions.create("th2JavaRelease", JavaReleaseTh2Extension::class.java)
         configureOwasp(project)
         configureLicenseReport(project)
         configureGitProperties(project)
         lockDependencies(project)
         project.allprojects {
-            configureManifestInfo()
+            configureJavaProject(javaRelease)
+            configureKotlinProject(javaRelease)
             configureBomDependency()
         }
     }
@@ -141,21 +148,51 @@ class BaseTh2Plugin : Plugin<Project> {
         project.pluginManager.apply(GitPropertiesPlugin::class.java)
     }
 
-    private fun Project.configureManifestInfo() {
+    private fun Project.configureJavaProject(javaRelease: JavaReleaseTh2Extension) {
         plugins.withType<JavaPlugin> {
-            tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME) {
-                manifest {
-                    val javaInfo = "${System.getProperty(JAVA_VERSION_PROP)} (${System.getProperty(JAVA_VENDOR_PROP)})"
-                    attributes(
-                        mapOf(
-                            "Created-By" to javaInfo,
-                            "Specification-Title" to "",
-                            "Specification-Vendor" to EXACTPRO_SYSTEMS_LLC,
-                            "Implementation-Title" to this@configureManifestInfo.name,
-                            "Implementation-Vendor" to EXACTPRO_SYSTEMS_LLC,
-                            "Implementation-Vendor-Id" to VENDOR_ID,
-                            "Implementation-Version" to this@configureManifestInfo.version,
-                        ),
+            configureManifestInfo()
+            configureReleaseParameters(javaRelease)
+        }
+    }
+
+    private fun Project.configureReleaseParameters(javaRelease: JavaReleaseTh2Extension) {
+        tasks.withType<JavaCompile> {
+            options.release.set(
+                javaRelease.targetJavaVersion
+                    .map { JavaLanguageVersion.of(it.toString()).asInt() },
+            )
+        }
+    }
+
+    private fun Project.configureManifestInfo() {
+        tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME) {
+            manifest {
+                val javaInfo = "${System.getProperty(JAVA_VERSION_PROP)} (${System.getProperty(JAVA_VENDOR_PROP)})"
+                attributes(
+                    mapOf(
+                        "Created-By" to javaInfo,
+                        "Specification-Title" to "",
+                        "Specification-Vendor" to EXACTPRO_SYSTEMS_LLC,
+                        "Implementation-Title" to this@configureManifestInfo.name,
+                        "Implementation-Vendor" to EXACTPRO_SYSTEMS_LLC,
+                        "Implementation-Vendor-Id" to VENDOR_ID,
+                        "Implementation-Version" to this@configureManifestInfo.version,
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun Project.configureKotlinProject(extension: JavaReleaseTh2Extension) {
+        plugins.withId("org.jetbrains.kotlin.jvm") {
+            fun JavaVersion.toJdkTarget() = if (ordinal <= JavaVersion.VERSION_1_8.ordinal) "1.$this" else this.toString()
+
+            tasks.withType<KotlinCompile>().configureEach {
+                compilerOptions {
+                    jvmTarget.set(extension.targetJavaVersion.map { JvmTarget.fromTarget(it.toJdkTarget()) })
+                    freeCompilerArgs.add(
+                        extension.targetJavaVersion
+                            .map { "-Xjdk-release=${it.toJdkTarget()}" },
                     )
                 }
             }
@@ -171,15 +208,14 @@ class BaseTh2Plugin : Plugin<Project> {
                     JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
                     project.dependencies.platform(Libraries.TH2_BOM),
                 )
-
-            // only if we have JavaTestFixtures plugin applied
-            plugins.withType<JavaTestFixturesPlugin> {
-                project.dependencies
-                    .add(
-                        TEST_FIXTURES_IMPLEMENTATION,
-                        project.dependencies.platform(Libraries.TH2_BOM),
-                    )
-            }
+        }
+        // only if we have JavaTestFixtures plugin applied
+        plugins.withType<JavaTestFixturesPlugin> {
+            project.dependencies
+                .add(
+                    TEST_FIXTURES_IMPLEMENTATION,
+                    project.dependencies.platform(Libraries.TH2_BOM),
+                )
         }
     }
 }

@@ -14,15 +14,22 @@ plugins {
     alias(libs.plugins.gradle.functional.test)
 }
 
+private val targetJvmRelease = provider { JavaLanguageVersion.of(11) }
+
 java {
-    targetCompatibility = JavaVersion.VERSION_11
-    sourceCompatibility = JavaVersion.VERSION_11
+    val javaVersion = targetJvmRelease.map { JavaVersion.toVersion(it.asInt()) }.get()
+    targetCompatibility = javaVersion
+    sourceCompatibility = javaVersion
+}
+
+tasks.withType<JavaCompile> {
+    options.release.set(targetJvmRelease.map { it.asInt() })
 }
 
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
-        freeCompilerArgs.add("-Xjdk-release=11")
+        freeCompilerArgs.add(targetJvmRelease.map { "-Xjdk-release=$it" })
     }
 }
 
@@ -30,6 +37,12 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
     gradlePluginDevelopment()
+}
+
+private val optionalPlugins by configurations.creating
+
+configurations.compileOnly.configure {
+    extendsFrom(optionalPlugins)
 }
 
 dependencies {
@@ -41,19 +54,27 @@ dependencies {
 
     implementation(libs.owasp)
 
+    optionalPlugins(libs.kotlin.plugin)
+
     // Use the Kotlin JUnit 5 integration.
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.parameters)
     testImplementation(libs.junit.kotlin)
-    testImplementation(libs.kotlin.plugin)
+    testRuntimeOnly(libs.kotlin.plugin) {
+        because("required for base plugin unit tests")
+    }
     testRuntimeOnly(libs.junit.launcher)
 }
 
-// functional* configurations aren't applied before evaluation
-afterEvaluate {
-    configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
-    configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+configurations.configureEach {
+    when (name) {
+        "functionalTestImplementation" -> extendsFrom(configurations.testImplementation.get())
+        // Required for functional tests because otherwise our plugin and other plugins
+        // are loaded with different classloaders, and we cannot find required classes.
+        // Works perfectly fine in real projects.
+        "functionalTestPluginUnderTest" -> extendsFrom(optionalPlugins)
+    }
 }
 
 functionalTest {

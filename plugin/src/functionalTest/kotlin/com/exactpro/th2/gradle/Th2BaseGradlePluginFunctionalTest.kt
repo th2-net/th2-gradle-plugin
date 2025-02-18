@@ -27,9 +27,12 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.io.TempDir
+import java.io.DataInputStream
 import java.io.File
+import java.nio.file.Files
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 private val MAPPER = ObjectMapper()
 
@@ -42,6 +45,148 @@ class Th2BaseGradlePluginFunctionalTest {
     private val settingsFile by lazy { projectDir.resolve("settings.gradle") }
 
     @Test
+    fun `the target jvm release version can be changed`() {
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java-library')
+                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('com.exactpro.th2.gradle.base')
+            }
+            
+            th2JavaRelease {
+              targetJavaVersion.set(JavaVersion.VERSION_17)
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """.trimIndent(),
+        )
+        with(projectDir / "src" / "main" / "java") {
+            mkdirs()
+            resolve("Hello.java").writeText(
+                """
+                class Hello {
+                  public static void printHello() {
+                    System.out.println("Hello World from Java!");
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
+        with(projectDir / "src" / "main" / "kotlin") {
+            mkdirs()
+            resolve("Main.kt").writeText(
+                """
+                fun main() {
+                  println("Hello World from Kotlin!")
+                  Hello.printHello()
+                }
+                """.trimIndent(),
+            )
+        }
+
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withConfiguredVersion()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    "build",
+                    // because no git repository exist in test
+                    "-x",
+                    "generateGitProperties",
+                )
+                .build()
+
+        assertAll(
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileKotlin")?.outcome, "unexpected kotlin compile outcome") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava")?.outcome, "unexpected java compile outcome") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome, "unexpected build outcome") },
+            { assertClassVersion("java", "Hello.class", 61) },
+            { assertClassVersion("kotlin", "MainKt.class", 61) },
+        )
+    }
+
+    @Test
+    fun `the default jvm release version is 11`() {
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java-library')
+                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('com.exactpro.th2.gradle.base')
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """.trimIndent(),
+        )
+        with(projectDir / "src" / "main" / "java") {
+            mkdirs()
+            resolve("Hello.java").writeText(
+                """
+                class Hello {
+                  public static void printHello() {
+                    System.out.println("Hello World from Java!");
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
+        with(projectDir / "src" / "main" / "kotlin") {
+            mkdirs()
+            resolve("Main.kt").writeText(
+                """
+                fun main() {
+                  println("Hello World from Kotlin!")
+                  Hello.printHello()
+                }
+                """.trimIndent(),
+            )
+        }
+
+        val result =
+            GradleRunner.create()
+                .forwardOutput()
+                .withDebug(true)
+                .withConfiguredVersion()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    "build",
+                    // because no git repository exist in test
+                    "-x",
+                    "generateGitProperties",
+                )
+                .build()
+
+        assertAll(
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileKotlin")?.outcome, "unexpected kotlin compile outcome") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava")?.outcome, "unexpected java compile outcome") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome, "unexpected build outcome") },
+            { assertClassVersion("java", "Hello.class", 55) },
+            { assertClassVersion("kotlin", "MainKt.class", 55) },
+        )
+    }
+
+    @Test
     fun `licenses plugin finds license for kotlin multiplatform dependencies`() {
         settingsFile.writeText(
             """
@@ -52,7 +197,7 @@ class Th2BaseGradlePluginFunctionalTest {
             """
             plugins {
                 id('java-library')
-                id('org.jetbrains.kotlin.jvm') version '1.8.22'
+                id('org.jetbrains.kotlin.jvm') version '1.9.0'
                 id('com.exactpro.th2.gradle.base')
             }
             
@@ -111,7 +256,7 @@ class Th2BaseGradlePluginFunctionalTest {
         buildFile.writeText(
             """
             plugins {
-                id('org.jetbrains.kotlin.jvm') version '1.8.22'
+                id('org.jetbrains.kotlin.jvm') version '1.9.0'
                 id('com.exactpro.th2.gradle.base')
             }
             
@@ -236,5 +381,28 @@ class Th2BaseGradlePluginFunctionalTest {
                 extraAssertion(it, moduleName)
             }
         }
+    }
+
+    private fun assertClassVersion(
+        lang: String,
+        name: String,
+        expectedVersion: Short,
+    ) {
+        val classFile = projectDir / "build" / "classes" / lang / "main" / name
+
+        assertTrue(classFile.exists(), "$name class for $lang does not exist")
+
+        val majorVersion =
+            DataInputStream(Files.newInputStream(classFile.toPath())).use {
+                // https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html
+                // magic
+                it.readInt()
+                // minor
+                it.readShort()
+
+                it.readShort()
+            }
+
+        assertEquals(expectedVersion, majorVersion, "unexpected class file version for $name in $lang")
     }
 }
