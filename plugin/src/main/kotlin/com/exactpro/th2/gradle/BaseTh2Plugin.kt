@@ -30,7 +30,6 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaTestFixturesPlugin
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
@@ -159,7 +158,7 @@ class BaseTh2Plugin : Plugin<Project> {
         tasks.withType<JavaCompile> {
             options.release.set(
                 javaRelease.targetJavaVersion
-                    .map { JavaLanguageVersion.of(it.toString()).asInt() },
+                    .map { JavaVersion.toVersion(it).majorVersion.toInt() },
             )
         }
     }
@@ -185,14 +184,12 @@ class BaseTh2Plugin : Plugin<Project> {
 
     private fun Project.configureKotlinProject(extension: JavaReleaseTh2Extension) {
         plugins.withId("org.jetbrains.kotlin.jvm") {
-            fun JavaVersion.toJdkTarget() = if (ordinal <= JavaVersion.VERSION_1_8.ordinal) "1.$this" else this.toString()
-
             tasks.withType<KotlinCompile>().configureEach {
                 compilerOptions {
-                    jvmTarget.set(extension.targetJavaVersion.map { JvmTarget.fromTarget(it.toJdkTarget()) })
+                    jvmTarget.set(extension.targetJavaVersion.map { JvmTarget.fromTarget(it.toString()) })
                     freeCompilerArgs.add(
                         extension.targetJavaVersion
-                            .map { "-Xjdk-release=${it.toJdkTarget()}" },
+                            .map { "-Xjdk-release=$it" },
                     )
                 }
             }

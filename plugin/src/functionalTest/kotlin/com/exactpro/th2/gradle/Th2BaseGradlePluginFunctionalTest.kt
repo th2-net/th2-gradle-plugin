@@ -93,7 +93,8 @@ class Th2BaseGradlePluginFunctionalTest {
         }
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withConfiguredVersion()
@@ -105,8 +106,7 @@ class Th2BaseGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     "generateGitProperties",
-                )
-                .build()
+                ).build()
 
         assertAll(
             { assertEquals(TaskOutcome.SUCCESS, result.task(":compileKotlin")?.outcome, "unexpected kotlin compile outcome") },
@@ -114,6 +114,79 @@ class Th2BaseGradlePluginFunctionalTest {
             { assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome, "unexpected build outcome") },
             { assertClassVersion("java", "Hello.class", 61) },
             { assertClassVersion("kotlin", "MainKt.class", 61) },
+        )
+    }
+
+    @Test
+    fun `the target jvm release version is 1 dot 8`() {
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java-library')
+                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('com.exactpro.th2.gradle.base')
+            }
+            
+            th2JavaRelease {
+              targetJavaVersion.set(JavaVersion.VERSION_1_8)
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """.trimIndent(),
+        )
+        with(projectDir / "src" / "main" / "java") {
+            mkdirs()
+            resolve("Hello.java").writeText(
+                """
+                class Hello {
+                  public static void printHello() {
+                    System.out.println("Hello World from Java!");
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
+        with(projectDir / "src" / "main" / "kotlin") {
+            mkdirs()
+            resolve("Main.kt").writeText(
+                """
+                fun main() {
+                  println("Hello World from Kotlin!")
+                  Hello.printHello()
+                }
+                """.trimIndent(),
+            )
+        }
+
+        val result =
+            GradleRunner
+                .create()
+                .forwardOutput()
+                .withDebug(true)
+                .withConfiguredVersion()
+                .withPluginClasspath()
+                .withProjectDir(projectDir)
+                .withArguments(
+                    "--stacktrace",
+                    "build",
+                    // because no git repository exist in test
+                    "-x",
+                    "generateGitProperties",
+                ).build()
+
+        assertAll(
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileKotlin")?.outcome, "unexpected kotlin compile outcome") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":compileJava")?.outcome, "unexpected java compile outcome") },
+            { assertEquals(TaskOutcome.SUCCESS, result.task(":build")?.outcome, "unexpected build outcome") },
+            { assertClassVersion("java", "Hello.class", 52) },
+            { assertClassVersion("kotlin", "MainKt.class", 52) },
         )
     }
 
@@ -162,7 +235,8 @@ class Th2BaseGradlePluginFunctionalTest {
         }
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withConfiguredVersion()
@@ -174,8 +248,7 @@ class Th2BaseGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     "generateGitProperties",
-                )
-                .build()
+                ).build()
 
         assertAll(
             { assertEquals(TaskOutcome.SUCCESS, result.task(":compileKotlin")?.outcome, "unexpected kotlin compile outcome") },
@@ -213,7 +286,8 @@ class Th2BaseGradlePluginFunctionalTest {
         )
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withConfiguredVersion()
@@ -225,8 +299,7 @@ class Th2BaseGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     "generateGitProperties",
-                )
-                .build()
+                ).build()
         val checkLicenses = result.task(":checkLicense")
         assertNotNull(checkLicenses, "task checkLicense was not executed") {
             assertEquals(TaskOutcome.SUCCESS, it.outcome, "unexpected task result")
@@ -312,7 +385,8 @@ class Th2BaseGradlePluginFunctionalTest {
             """.trimIndent(),
         )
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withConfiguredVersion()
@@ -324,8 +398,7 @@ class Th2BaseGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     "generateGitProperties",
-                )
-                .build()
+                ).build()
 
         val checkLicenses = result.task(":checkLicense")
         assertNotNull(checkLicenses, "task checkLicense was not executed") {
@@ -371,7 +444,8 @@ class Th2BaseGradlePluginFunctionalTest {
         extraAssertion: (ArrayNode, String) -> Unit = { _, _ -> },
     ) {
         val module =
-            elements().asSequence()
+            elements()
+                .asSequence()
                 .find { it.get("moduleName").textValue() == moduleName }
         assertNotNull(module, "module $moduleName not found") { m ->
             val moduleInfo = assertIs<ObjectNode>(m, "module info must be an object")
