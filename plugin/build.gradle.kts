@@ -70,6 +70,7 @@ dependencies {
 configurations.configureEach {
     when (name) {
         "functionalTestImplementation" -> extendsFrom(configurations.testImplementation.get())
+        "functionalTestRuntimeOnly" -> extendsFrom(configurations.testRuntimeOnly.get())
         // Required for functional tests because otherwise our plugin and other plugins
         // are loaded with different classloaders, and we cannot find required classes.
         // Works perfectly fine in real projects.
@@ -146,10 +147,25 @@ buildConfig {
         internalVisibility = true
     }
 
-    buildConfigField("TH2_BOM", libs.th2.bom.get().toString())
+    buildConfigField(
+        "TH2_BOM",
+        libs.th2.bom
+            .get()
+            .toString(),
+    )
     buildConfigField("PROTOC", libs.protoc.get().toString())
-    buildConfigField("GRPC_PLUGIN", libs.grpc.protoc.plugin.get().toString())
-    buildConfigField("SERVICE_GENERATOR_PLUGIN", libs.grpc.service.generator.get().toString())
+    buildConfigField(
+        "GRPC_PLUGIN",
+        libs.grpc.protoc.plugin
+            .get()
+            .toString(),
+    )
+    buildConfigField(
+        "SERVICE_GENERATOR_PLUGIN",
+        libs.grpc.service.generator
+            .get()
+            .toString(),
+    )
 }
 
 ktlint {
