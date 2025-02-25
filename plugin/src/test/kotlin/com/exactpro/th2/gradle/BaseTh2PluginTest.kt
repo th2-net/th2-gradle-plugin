@@ -90,13 +90,21 @@ internal class BaseTh2PluginTest {
         val nvdApiKey = "test-nvdApiKey"
         val nvdDelay = 9_999
         val nvdDatafeedUrl = "https://nvdDatafeedUrl.test"
+        val nvdDatafeedUser = "test-nvdDatafeedUser"
+        val nvdDatafeedPassword = "test-nvdDatafeedPassword"
         val analyzersKnownExploitedURL = "https://knownExploitedURL.test"
+        val analyzersKnownExploitedUser = "test-analyzersKnownExploitedUser"
+        val analyzersKnownExploitedPassword = "test-analyzersKnownExploitedPassword"
         val project = ProjectBuilder.builder().build()
 
         project.extensions.extraProperties["nvdApiKey"] = nvdApiKey
         project.extensions.extraProperties["nvdDelay"] = nvdDelay.toString()
         project.extensions.extraProperties["nvdDatafeedUrl"] = nvdDatafeedUrl
+        project.extensions.extraProperties["nvdDatafeedUser"] = nvdDatafeedUser
+        project.extensions.extraProperties["nvdDatafeedPassword"] = nvdDatafeedPassword
         project.extensions.extraProperties["analyzersKnownExploitedURL"] = analyzersKnownExploitedURL
+        project.extensions.extraProperties["analyzersKnownExploitedUser"] = analyzersKnownExploitedUser
+        project.extensions.extraProperties["analyzersKnownExploitedPassword"] = analyzersKnownExploitedPassword
         project.pluginManager.apply("com.exactpro.th2.gradle.base")
 
         val dependencyCheckExtension = project.the<DependencyCheckExtension>()
@@ -106,11 +114,27 @@ internal class BaseTh2PluginTest {
             { assertEquals(nvdApiKey, nvd.apiKey, "unexpected dependencyCheck.nvd.apiKey") },
             { assertEquals(nvdDelay, nvd.delay, "unexpected dependencyCheck.nvd.nvdDelay") },
             { assertEquals(nvdDatafeedUrl, nvd.datafeedUrl, "unexpected dependencyCheck.nvd.datafeedUrl") },
+            { assertEquals(nvdDatafeedUser, nvd.datafeedUser, "unexpected dependencyCheck.nvd.datafeedUser") },
+            { assertEquals(nvdDatafeedPassword, nvd.datafeedPassword, "unexpected dependencyCheck.nvd.datafeedPassword") },
             {
                 assertEquals(
                     analyzersKnownExploitedURL,
                     analyzers.kev.url,
-                    "unexpected dependencyCheck.analyzers.knownExploitedURL",
+                    "unexpected dependencyCheck.analyzers.kev.url",
+                )
+            },
+            {
+                assertEquals(
+                    analyzersKnownExploitedUser,
+                    analyzers.kev.user,
+                    "unexpected dependencyCheck.analyzers.kev.user",
+                )
+            },
+            {
+                assertEquals(
+                    analyzersKnownExploitedPassword,
+                    analyzers.kev.password,
+                    "unexpected dependencyCheck.analyzers.kev.password",
                 )
             },
         )
