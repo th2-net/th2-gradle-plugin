@@ -93,6 +93,8 @@ class BaseTh2Plugin : Plugin<Project> {
                 apiKey = project.findProperty("nvdApiKey") as? String
                 delay = (project.findProperty("nvdDelay") as? String)?.toInt() ?: 10_000
                 datafeedUrl = project.findProperty("nvdDatafeedUrl") as? String
+                datafeedUser = project.findProperty("nvdDatafeedUser") as? String
+                datafeedPassword = project.findProperty("nvdDatafeedPassword") as? String
             }
 
             analyzers.apply {
@@ -102,6 +104,8 @@ class BaseTh2Plugin : Plugin<Project> {
 
                 kev.apply {
                     url = project.findProperty("analyzersKnownExploitedURL") as? String
+                    user = project.findProperty("analyzersKnownExploitedUser") as? String
+                    password = project.findProperty("analyzersKnownExploitedPassword") as? String
                 }
             }
         }
