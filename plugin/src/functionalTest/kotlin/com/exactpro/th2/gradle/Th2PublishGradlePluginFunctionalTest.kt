@@ -481,7 +481,10 @@ class Th2PublishGradlePluginFunctionalTest {
 
         assertContains(
             exception.buildResult.output,
-            "'th2.gradle.publish' plugin is applied to the root project, but none of the projects has 'maven-publish' plugin to enable the publication. You can either remove 'th2.gradle.publish' plugin from the root project or add the 'maven-publish' plugin to projects you want to publish as artifacts",
+            "'th2.gradle.publish' plugin is applied to the root project, " +
+                "but none of the projects has 'maven-publish' plugin to enable the publication. " +
+                "You can either remove 'th2.gradle.publish' plugin from the root project " +
+                "or add the 'maven-publish' plugin to projects you want to publish as artifacts",
         )
     }
 
@@ -535,7 +538,10 @@ class Th2PublishGradlePluginFunctionalTest {
 
         assertContains(
             exception.buildResult.output,
-            "'th2.gradle.publish' plugin is applied to the root project, but none of the projects has 'maven-publish' plugin to enable the publication. You can either remove 'th2.gradle.publish' plugin from the root project or add the 'maven-publish' plugin to projects you want to publish as artifacts",
+            "'th2.gradle.publish' plugin is applied to the root project, " +
+                "but none of the projects has 'maven-publish' plugin to enable the publication. " +
+                "You can either remove 'th2.gradle.publish' plugin from the root project " +
+                "or add the 'maven-publish' plugin to projects you want to publish as artifacts",
         )
     }
 
