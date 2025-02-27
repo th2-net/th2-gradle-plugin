@@ -20,6 +20,7 @@ import org.gradle.api.internal.project.DefaultProject
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.plugins.signing.SigningPlugin
 import org.gradle.testfixtures.ProjectBuilder
@@ -36,11 +37,11 @@ internal class PublishTh2PluginTest {
     @Test
     fun `applies required plugins`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.pluginManager.apply("java")
-        project.pluginManager.apply("maven-publish")
         project.pluginManager.apply("com.exactpro.th2.gradle.publish")
 
         project.group = "com.example"
@@ -66,6 +67,12 @@ internal class PublishTh2PluginTest {
 
         project.run {
             assertAll(
+                {
+                    assertNotNull(
+                        project.plugins.findPlugin(MavenPublishPlugin::class.java),
+                        "maven-publish plugin was not applied",
+                    )
+                },
                 { assertNotNull(plugins.findPlugin(SigningPlugin::class.java), "no signing plugin configured") },
                 {
                     val publications =
@@ -104,10 +111,12 @@ internal class PublishTh2PluginTest {
     @Test
     fun `reports error if applied not to the root project`() {
         val root =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
         val subProject =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .withParent(root)
                 .build()
 

@@ -58,6 +58,9 @@ class PublishTh2Plugin : Plugin<Project> {
         if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
             project.pluginManager.apply(BaseTh2Plugin::class.java)
         }
+        if (!project.plugins.hasPlugin(MavenPublishPlugin::class.java)) {
+            project.pluginManager.apply(MavenPublishPlugin::class.java)
+        }
         val extension = project.extensions.create(TH2_PUBLISH_EXTENSION, PublishTh2Extension::class.java)
 
         configureSonatypeNexusPublishPlugin(project, extension)

@@ -42,7 +42,6 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -68,7 +67,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         // Run the build
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withPluginClasspath()
                 .withConfiguredVersion()
@@ -98,7 +98,6 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -110,7 +109,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         // Run the build
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withPluginClasspath()
                 .withConfiguredVersion()
@@ -122,8 +122,7 @@ class Th2PublishGradlePluginFunctionalTest {
                         "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                         "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                     ),
-                )
-                .withArguments("--stacktrace", "tasks", "-Pvcs_url=test")
+                ).withArguments("--stacktrace", "tasks", "-Pvcs_url=test")
                 .build()
 
         // Verify the result
@@ -152,7 +151,6 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -169,7 +167,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -181,8 +180,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -207,7 +205,6 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -224,7 +221,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -236,8 +234,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -262,7 +259,6 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -279,7 +275,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -291,8 +288,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -317,7 +313,6 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -329,7 +324,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -341,8 +337,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
