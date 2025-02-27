@@ -55,6 +55,11 @@ class PublishTh2Plugin : Plugin<Project> {
         check(project === project.rootProject) {
             "th2 publish plugin must be applied to the root project but was applied to ${project.path}"
         }
+        project.gradle.projectsEvaluated {
+            check(project.allprojects.any { it.plugins.hasPlugin(MavenPublishPlugin::class.java) }) {
+                "'th2.gradle.publish' plugin is applied to the root project, but none of the projects has 'maven-publish' plugin to enable the publication. You can either remove 'th2.gradle.publish' plugin from the root project or add the 'maven-publish' plugin to projects you want to publish as artifacts"
+            }
+        }
         if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
             project.pluginManager.apply(BaseTh2Plugin::class.java)
         }

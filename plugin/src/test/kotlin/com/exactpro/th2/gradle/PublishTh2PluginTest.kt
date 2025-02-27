@@ -36,7 +36,8 @@ internal class PublishTh2PluginTest {
     @Test
     fun `applies required plugins`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.pluginManager.apply("java")
@@ -104,10 +105,12 @@ internal class PublishTh2PluginTest {
     @Test
     fun `reports error if applied not to the root project`() {
         val root =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
         val subProject =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .withParent(root)
                 .build()
 

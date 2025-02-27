@@ -68,7 +68,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         // Run the build
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withPluginClasspath()
                 .withConfiguredVersion()
@@ -110,7 +111,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         // Run the build
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withPluginClasspath()
                 .withConfiguredVersion()
@@ -122,8 +124,83 @@ class Th2PublishGradlePluginFunctionalTest {
                         "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                         "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                     ),
-                )
-                .withArguments("--stacktrace", "tasks", "-Pvcs_url=test")
+                ).withArguments("--stacktrace", "tasks", "-Pvcs_url=test")
+                .build()
+
+        // Verify the result
+        assertAll(
+            {
+                result.assertHasTask("publishToSonatype")
+            },
+            {
+                result.assertHasTask("releaseSonatypeStagingRepository")
+            },
+            {
+                result.assertHasTask("closeAndReleaseSonatypeStagingRepository")
+            },
+        )
+    }
+
+    @Test
+    fun `all sonatype tasks present for sub project`() {
+        // Set up the test build
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            include "sub"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            th2Publish {
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
+              signature {
+                key.set("key")
+                password.set("pwd")
+              }
+            }
+            
+            subprojects {
+              group = "com.example"
+              version = "1.0.0"
+            }
+            """.trimIndent(),
+        )
+        val subDir = projectDir.resolve("sub").also(File::mkdir)
+        val subBuildFile = subDir.resolve("build.gradle")
+        subBuildFile.writeText(
+            """
+            plugins {
+              id('java')
+              id('maven-publish')
+            }
+            
+            description = "sub description"
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("sub")
+              }
+            }
+            """.trimIndent(),
+        )
+
+        // Run the build
+        val result =
+            GradleRunner
+                .create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withConfiguredVersion()
+                .withProjectDir(projectDir)
+                .withArguments("--stacktrace", "tasks")
                 .build()
 
         // Verify the result
@@ -169,7 +246,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -181,8 +259,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -224,7 +301,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -236,8 +314,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -251,7 +328,7 @@ class Th2PublishGradlePluginFunctionalTest {
     }
 
     @Test
-    fun `reports error if descriptoin is missing`() {
+    fun `reports error if description is missing`() {
         // Set up the test build
         settingsFile.writeText(
             """
@@ -279,7 +356,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -291,8 +369,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -329,7 +406,8 @@ class Th2PublishGradlePluginFunctionalTest {
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
-                GradleRunner.create()
+                GradleRunner
+                    .create()
                     .forwardOutput()
                     .withPluginClasspath()
                     .withConfiguredVersion()
@@ -341,8 +419,7 @@ class Th2PublishGradlePluginFunctionalTest {
                             "ORG_GRADLE_PROJECT_signingKey" to "signKey",
                             "ORG_GRADLE_PROJECT_signingPassword" to "signPassword",
                         ),
-                    )
-                    .withArguments("--stacktrace", "tasks")
+                    ).withArguments("--stacktrace", "tasks")
                     .build()
             }
 
@@ -352,6 +429,119 @@ class Th2PublishGradlePluginFunctionalTest {
             project 'test' contains following issues:
             vcs url is not provided (use th2Publish.pom extension or vcs_url property)
             """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `reports error if maven publish plugin is not applied to single project`() {
+        // Set up the test build
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java')
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            group = "com.example"
+            version = "1.0.0"
+            description = "test description"
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("test")
+              }
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
+              signature {
+                key.set("key")
+                password.set("pwd")
+              }
+            }
+            """.trimIndent(),
+        )
+
+        val exception =
+            assertThrows<UnexpectedBuildFailure> {
+                GradleRunner
+                    .create()
+                    .forwardOutput()
+                    .withPluginClasspath()
+                    .withConfiguredVersion()
+                    .withProjectDir(projectDir)
+                    .withArguments("--stacktrace", "tasks")
+                    .build()
+            }
+
+        assertContains(
+            exception.buildResult.output,
+            "'th2.gradle.publish' plugin is applied to the root project, " +
+                "but none of the projects has 'maven-publish' plugin to enable the publication. " +
+                "You can either remove 'th2.gradle.publish' plugin from the root project " +
+                "or add the 'maven-publish' plugin to projects you want to publish as artifacts",
+        )
+    }
+
+    @Test
+    fun `reports error if maven publish plugin is not applied any of projects`() {
+        // Set up the test build
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            include "sub"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java')
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            group = "com.example"
+            version = "1.0.0"
+            description = "test description"
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("test")
+              }
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
+              signature {
+                key.set("key")
+                password.set("pwd")
+              }
+            }
+            """.trimIndent(),
+        )
+
+        val exception =
+            assertThrows<UnexpectedBuildFailure> {
+                GradleRunner
+                    .create()
+                    .forwardOutput()
+                    .withPluginClasspath()
+                    .withConfiguredVersion()
+                    .withProjectDir(projectDir)
+                    .withArguments("--stacktrace", "tasks")
+                    .build()
+            }
+
+        assertContains(
+            exception.buildResult.output,
+            "'th2.gradle.publish' plugin is applied to the root project, " +
+                "but none of the projects has 'maven-publish' plugin to enable the publication. " +
+                "You can either remove 'th2.gradle.publish' plugin from the root project " +
+                "or add the 'maven-publish' plugin to projects you want to publish as artifacts",
         )
     }
 
