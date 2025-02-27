@@ -42,6 +42,7 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
+                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -98,6 +99,7 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
+                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -140,6 +142,80 @@ class Th2PublishGradlePluginFunctionalTest {
     }
 
     @Test
+    fun `all sonatype tasks present for sub project`() {
+        // Set up the test build
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            include "sub"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            th2Publish {
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
+              signature {
+                key.set("key")
+                password.set("pwd")
+              }
+            }
+            
+            subprojects {
+              group = "com.example"
+              version = "1.0.0"
+            }
+            """.trimIndent(),
+        )
+        val subDir = projectDir.resolve("sub").also(File::mkdir)
+        val subBuildFile = subDir.resolve("build.gradle")
+        subBuildFile.writeText(
+            """
+            apply plugin: 'java'
+            apply plugin: 'maven-publish'
+            
+            description = "sub description"
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("sub")
+              }
+            }
+            """.trimIndent(),
+        )
+
+        // Run the build
+        val result =
+            GradleRunner
+                .create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withConfiguredVersion()
+                .withProjectDir(projectDir)
+                .withArguments("--stacktrace", "tasks")
+                .build()
+
+        // Verify the result
+        assertAll(
+            {
+                result.assertHasTask("publishToSonatype")
+            },
+            {
+                result.assertHasTask("releaseSonatypeStagingRepository")
+            },
+            {
+                result.assertHasTask("closeAndReleaseSonatypeStagingRepository")
+            },
+        )
+    }
+
+    @Test
     fun `reports error if version is missing`() {
         // Set up the test build
         settingsFile.writeText(
@@ -151,6 +227,7 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
+                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -205,6 +282,7 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
+                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -248,7 +326,7 @@ class Th2PublishGradlePluginFunctionalTest {
     }
 
     @Test
-    fun `reports error if descriptoin is missing`() {
+    fun `reports error if description is missing`() {
         // Set up the test build
         settingsFile.writeText(
             """
@@ -259,6 +337,7 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
+                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -313,6 +392,7 @@ class Th2PublishGradlePluginFunctionalTest {
             """
             plugins {
                 id('java')
+                id('maven-publish')
                 id('com.exactpro.th2.gradle.publish')
             }
             
@@ -347,6 +427,113 @@ class Th2PublishGradlePluginFunctionalTest {
             project 'test' contains following issues:
             vcs url is not provided (use th2Publish.pom extension or vcs_url property)
             """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `reports error if maven publish plugin is not applied to single project`() {
+        // Set up the test build
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java')
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            group = "com.example"
+            version = "1.0.0"
+            description = "test description"
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("test")
+              }
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
+              signature {
+                key.set("key")
+                password.set("pwd")
+              }
+            }
+            """.trimIndent(),
+        )
+
+        val exception =
+            assertThrows<UnexpectedBuildFailure> {
+                GradleRunner
+                    .create()
+                    .forwardOutput()
+                    .withPluginClasspath()
+                    .withConfiguredVersion()
+                    .withProjectDir(projectDir)
+                    .withArguments("--stacktrace", "tasks")
+                    .build()
+            }
+
+        assertContains(
+            exception.buildResult.output,
+            "Plugin 'maven-publish' is not applied to any of [test] projects",
+        )
+    }
+
+    @Test
+    fun `reports error if maven publish plugin is not applied any of projects`() {
+        // Set up the test build
+        settingsFile.writeText(
+            """
+            rootProject.name = "test"
+            include "sub"
+            """.trimIndent(),
+        )
+        buildFile.writeText(
+            """
+            plugins {
+                id('java')
+                id('com.exactpro.th2.gradle.publish')
+            }
+            
+            group = "com.example"
+            version = "1.0.0"
+            description = "test description"
+            
+            th2Publish {
+              pom {
+                vcsUrl.set("test")
+              }
+              sonatype {
+                username.set("username")
+                password.set("password")
+              }
+              signature {
+                key.set("key")
+                password.set("pwd")
+              }
+            }
+            """.trimIndent(),
+        )
+
+        val exception =
+            assertThrows<UnexpectedBuildFailure> {
+                GradleRunner
+                    .create()
+                    .forwardOutput()
+                    .withPluginClasspath()
+                    .withConfiguredVersion()
+                    .withProjectDir(projectDir)
+                    .withArguments("--stacktrace", "tasks")
+                    .build()
+            }
+
+        assertContains(
+            exception.buildResult.output,
+            "Plugin 'maven-publish' is not applied to any of [test, sub] projects",
         )
     }
 

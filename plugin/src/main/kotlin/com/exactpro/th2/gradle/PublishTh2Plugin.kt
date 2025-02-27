@@ -55,11 +55,13 @@ class PublishTh2Plugin : Plugin<Project> {
         check(project === project.rootProject) {
             "th2 publish plugin must be applied to the root project but was applied to ${project.path}"
         }
+        project.gradle.projectsEvaluated {
+            check(project.allprojects.any { it.plugins.hasPlugin(MavenPublishPlugin::class.java) }) {
+                "Plugin 'maven-publish' is not applied to any of ${project.allprojects.map(Project::getName)} projects"
+            }
+        }
         if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
             project.pluginManager.apply(BaseTh2Plugin::class.java)
-        }
-        if (!project.plugins.hasPlugin(MavenPublishPlugin::class.java)) {
-            project.pluginManager.apply(MavenPublishPlugin::class.java)
         }
         val extension = project.extensions.create(TH2_PUBLISH_EXTENSION, PublishTh2Extension::class.java)
 
