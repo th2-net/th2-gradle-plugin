@@ -57,7 +57,7 @@ class PublishTh2Plugin : Plugin<Project> {
         }
         project.gradle.projectsEvaluated {
             check(project.allprojects.any { it.plugins.hasPlugin(MavenPublishPlugin::class.java) }) {
-                "Plugin 'maven-publish' is not applied to any of ${project.allprojects.map(Project::getName)} projects"
+                "'th2.gradle.publish' plugin is applied to the root project, but none of the projects has 'maven-publish' plugin to enable the publication. You can either remove 'th2.gradle.publish' plugin from the root project or add the 'maven-publish' plugin to projects you want to publish as artifacts"
             }
         }
         if (!project.plugins.hasPlugin(BaseTh2Plugin::class.java)) {
