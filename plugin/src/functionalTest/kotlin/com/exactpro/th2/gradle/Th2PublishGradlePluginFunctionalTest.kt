@@ -177,8 +177,10 @@ class Th2PublishGradlePluginFunctionalTest {
         val subBuildFile = subDir.resolve("build.gradle")
         subBuildFile.writeText(
             """
-            apply plugin: 'java'
-            apply plugin: 'maven-publish'
+            plugins {
+              id('java')
+              id('maven-publish')
+            }
             
             description = "sub description"
             
@@ -479,7 +481,7 @@ class Th2PublishGradlePluginFunctionalTest {
 
         assertContains(
             exception.buildResult.output,
-            "Plugin 'maven-publish' is not applied to any of [test] projects",
+            "'th2.gradle.publish' plugin is applied to the root project, but none of the projects has 'maven-publish' plugin to enable the publication. You can either remove 'th2.gradle.publish' plugin from the root project or add the 'maven-publish' plugin to projects you want to publish as artifacts",
         )
     }
 
@@ -533,7 +535,7 @@ class Th2PublishGradlePluginFunctionalTest {
 
         assertContains(
             exception.buildResult.output,
-            "Plugin 'maven-publish' is not applied to any of [test, sub] projects",
+            "'th2.gradle.publish' plugin is applied to the root project, but none of the projects has 'maven-publish' plugin to enable the publication. You can either remove 'th2.gradle.publish' plugin from the root project or add the 'maven-publish' plugin to projects you want to publish as artifacts",
         )
     }
 
