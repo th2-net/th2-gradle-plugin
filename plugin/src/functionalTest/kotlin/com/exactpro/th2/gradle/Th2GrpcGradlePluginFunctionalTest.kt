@@ -249,7 +249,7 @@ class Th2GrpcGradlePluginFunctionalTest {
         buildDirectory: File,
         service: Boolean = true,
     ) {
-        val generatedSources = buildDirectory / "generated" / "source" / "proto" / "main"
+        val generatedSources = buildDirectory / "generated" / "sources" / "proto" / "main"
         val resources = buildDirectory / "resources" / "main"
         val metaInf = resources / "META-INF"
         assertAll(
