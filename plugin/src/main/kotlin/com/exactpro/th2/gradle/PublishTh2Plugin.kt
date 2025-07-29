@@ -40,9 +40,9 @@ internal const val TH2_PUBLISH_EXTENSION = "th2Publish"
 
 private const val PUBLISHING_EXTENSION = "mavenJava"
 
-private const val SONATYPE_RELEASE_URL = "https://s01.oss.sonatype.org/service/local/"
+private const val SONATYPE_RELEASE_URL = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
 
-private const val SONATYPE_SNAPSHOT_URL = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+private const val SONATYPE_SNAPSHOT_URL = "https://central.sonatype.com/repository/maven-snapshots/"
 
 private const val JAVA_PLATFORM_COMPONENT_NAME = "javaPlatform"
 
