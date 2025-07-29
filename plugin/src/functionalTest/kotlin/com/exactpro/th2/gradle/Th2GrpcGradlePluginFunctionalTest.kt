@@ -48,11 +48,11 @@ class Th2GrpcGradlePluginFunctionalTest {
                 mavenCentral()
                 maven {
                     name = 'Sonatype_snapshots'
-                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    url = 'https://central.sonatype.com/repository/maven-snapshots/'
                 }
                 maven {
                     name = 'Sonatype_releases'
-                    url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    url = 'https://repo1.maven.org/maven2/'
                 }
             }
             """.trimIndent(),
@@ -101,11 +101,11 @@ class Th2GrpcGradlePluginFunctionalTest {
                 mavenCentral()
                 maven {
                     name = 'Sonatype_snapshots'
-                    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    url = 'https://central.sonatype.com/repository/maven-snapshots/'
                 }
                 maven {
                     name 'Sonatype_releases'
-                    url 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                    url 'https://repo1.maven.org/maven2/'
                 }
             }
             """.trimIndent(),
@@ -165,11 +165,11 @@ class Th2GrpcGradlePluginFunctionalTest {
                     mavenCentral()
                     maven {
                         name = 'Sonatype_snapshots'
-                        url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                        url = 'https://central.sonatype.com/repository/maven-snapshots/'
                     }
                     maven {
                         name = 'Sonatype_releases'
-                        url = 'https://s01.oss.sonatype.org/content/repositories/releases/'
+                        url = 'https://repo1.maven.org/maven2/'
                     }
                 }
             }
