@@ -82,7 +82,8 @@ functionalTest {
     testingStrategies.set(
         listOf(
             strategies.coverageForGradleVersion("8.4"),
-            strategies.coverageForLatestGlobalAvailableVersion,
+            strategies.coverageForGradleVersion("8.14.3"),
+//            strategies.coverageForLatestGlobalAvailableVersion, FIXME: provide support for gradle 9.0.0 version
             strategies.coverageForGradleVersion(GradleVersion.current().version),
         ),
     )

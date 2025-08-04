@@ -187,6 +187,11 @@ class PublishTh2Plugin : Plugin<Project> {
                 create<MavenPublication>(PUBLISHING_EXTENSION) {
                     project.plugins.withType<JavaPlugin> {
                         from(project.components[JAVA_COMPONENT_NAME])
+                        versionMapping {
+                            usage("java-runtime") {
+                                fromResolutionResult()
+                            }
+                        }
                     }
                     project.plugins.withType<JavaPlatformPlugin> {
                         from(project.components[JAVA_PLATFORM_COMPONENT_NAME])
