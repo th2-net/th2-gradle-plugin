@@ -188,7 +188,7 @@ class PublishTh2Plugin : Plugin<Project> {
                     project.plugins.withType<JavaPlugin> {
                         from(project.components[JAVA_COMPONENT_NAME])
                         versionMapping {
-                            usage("java-runtime"){
+                            usage("java-runtime") {
                                 fromResolutionResult()
                             }
                         }
