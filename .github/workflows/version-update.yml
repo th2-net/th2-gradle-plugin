@@ -53,6 +53,5 @@ jobs:
           --body "Automated version update"
           --head ${{ env.NEW_BRANCH }}
           --base master
-          --reviewer OptimumCode
           --reviewer Nikita-Smirnov-Exactpro
           --label ignore
