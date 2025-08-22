@@ -31,7 +31,7 @@ jobs:
       - name: 'Checkout Repository'
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.PUSH_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - run: echo "NEW_BRANCH=new-version-${{ inputs.next-version }}" >> $GITHUB_ENV
       - name: Prepare next dev version
         id: prepare_next_dev
@@ -47,7 +47,7 @@ jobs:
           new_branch: ${{ env.NEW_BRANCH }}
       - name: Create PR for version update
         env:
-          GH_TOKEN: ${{ secrets.PUSH_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
           gh pr create --title "Prepare next version"
           --body "Automated version update"
