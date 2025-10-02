@@ -102,6 +102,11 @@ class BaseTh2Plugin : Plugin<Project> {
                 nugetconfEnabled = false
                 nodeEnabled = false
 
+                ossIndex.apply {
+                    username = project.findProperty("analyzersOssIndexUser") as? String
+                    password = project.findProperty("analyzersOssIndexToken") as? String
+                }
+
                 kev.apply {
                     url = project.findProperty("analyzersKnownExploitedURL") as? String
                     user = project.findProperty("analyzersKnownExploitedUser") as? String
