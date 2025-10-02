@@ -92,6 +92,8 @@ internal class BaseTh2PluginTest {
         val nvdDatafeedUrl = "https://nvdDatafeedUrl.test"
         val nvdDatafeedUser = "test-nvdDatafeedUser"
         val nvdDatafeedPassword = "test-nvdDatafeedPassword"
+        val analyzersOssIndexUser = "test-analyzersOssIndexUser"
+        val analyzersOssIndexToken = "test-analyzersOssIndexToken"
         val analyzersKnownExploitedURL = "https://knownExploitedURL.test"
         val analyzersKnownExploitedUser = "test-analyzersKnownExploitedUser"
         val analyzersKnownExploitedPassword = "test-analyzersKnownExploitedPassword"
@@ -102,6 +104,8 @@ internal class BaseTh2PluginTest {
         project.extensions.extraProperties["nvdDatafeedUrl"] = nvdDatafeedUrl
         project.extensions.extraProperties["nvdDatafeedUser"] = nvdDatafeedUser
         project.extensions.extraProperties["nvdDatafeedPassword"] = nvdDatafeedPassword
+        project.extensions.extraProperties["analyzersOssIndexUser"] = analyzersOssIndexUser
+        project.extensions.extraProperties["analyzersOssIndexToken"] = analyzersOssIndexToken
         project.extensions.extraProperties["analyzersKnownExploitedURL"] = analyzersKnownExploitedURL
         project.extensions.extraProperties["analyzersKnownExploitedUser"] = analyzersKnownExploitedUser
         project.extensions.extraProperties["analyzersKnownExploitedPassword"] = analyzersKnownExploitedPassword
@@ -116,6 +120,20 @@ internal class BaseTh2PluginTest {
             { assertEquals(nvdDatafeedUrl, nvd.datafeedUrl, "unexpected dependencyCheck.nvd.datafeedUrl") },
             { assertEquals(nvdDatafeedUser, nvd.datafeedUser, "unexpected dependencyCheck.nvd.datafeedUser") },
             { assertEquals(nvdDatafeedPassword, nvd.datafeedPassword, "unexpected dependencyCheck.nvd.datafeedPassword") },
+            {
+                assertEquals(
+                    analyzersOssIndexUser,
+                    analyzers.ossIndex.username,
+                    "unexpected dependencyCheck.analyzers.ossIndex.username",
+                )
+            },
+            {
+                assertEquals(
+                    analyzersOssIndexToken,
+                    analyzers.ossIndex.password,
+                    "unexpected dependencyCheck.analyzers.ossIndex.password",
+                )
+            },
             {
                 assertEquals(
                     analyzersKnownExploitedURL,
