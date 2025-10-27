@@ -212,13 +212,13 @@ internal class BaseTh2PluginTest {
             { assertFalse(extension.assemblyEnabled.get(), "unexpected analyzers.assemblyEnabled") },
             { assertFalse(extension.nugetconfEnabled.get(), "unexpected analyzers.nugetconfEnabled") },
             { assertFalse(extension.nodePackage.enabled.get(), "unexpected analyzers.nodeEnabled") },
-            { assertNull(extension.kev.url.get(), "unexpected analyzers.knownExploitedURL") },
+            { assertNull(extension.kev.url.orNull, "unexpected analyzers.knownExploitedURL") },
         )
 
     private fun assertNvd(extension: NvdExtension) =
         assertAll(
-            { assertNull(extension.apiKey, "unexpected dependency check nvd.apiKey") },
+            { assertNull(extension.apiKey.orNull, "unexpected dependency check nvd.apiKey") },
             { assertEquals(10_000, extension.delay.get(), "unexpected dependency check nvd.delay") },
-            { assertNull(extension.datafeedUrl, "unexpected dependency check nvd.datafeedUrl") },
+            { assertNull(extension.datafeedUrl.orNull, "unexpected dependency check nvd.datafeedUrl") },
         )
 }

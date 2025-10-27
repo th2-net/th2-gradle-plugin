@@ -89,7 +89,7 @@ class BaseTh2Plugin : Plugin<Project> {
             setFormats(listOf("SARIF", "JSON", "HTML"))
             setFailBuildOnCVSS(5.0f)
 
-            nvd {
+            nvd.apply {
                 setApiKey(project.findProperty("nvdApiKey") as? String)
                 setDelay((project.findProperty("nvdDelay") as? String)?.toInt() ?: 10_000)
                 setDatafeedUrl(project.findProperty("nvdDatafeedUrl") as? String)
@@ -97,19 +97,19 @@ class BaseTh2Plugin : Plugin<Project> {
                 setDatafeedPassword(project.findProperty("nvdDatafeedPassword") as? String)
             }
 
-            analyzers {
+            analyzers.apply {
                 setAssemblyEnabled(false)
                 setNugetconfEnabled(false)
-                nodePackage {
+                nodePackage.apply {
                     setEnabled(false)
                 }
 
-                ossIndex {
+                ossIndex.apply {
                     setUsername(project.findProperty("analyzersOssIndexUser") as? String)
                     setPassword(project.findProperty("analyzersOssIndexToken") as? String)
                 }
 
-                kev {
+                kev.apply {
                     setUrl(project.findProperty("analyzersKnownExploitedURL") as? String)
                     setUser(project.findProperty("analyzersKnownExploitedUser") as? String)
                     setPassword(project.findProperty("analyzersKnownExploitedPassword") as? String)
