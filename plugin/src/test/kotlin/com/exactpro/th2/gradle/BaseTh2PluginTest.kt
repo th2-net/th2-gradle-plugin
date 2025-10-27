@@ -115,43 +115,43 @@ internal class BaseTh2PluginTest {
         val nvd = dependencyCheckExtension.nvd
         val analyzers = dependencyCheckExtension.analyzers
         assertAll(
-            { assertEquals(nvdApiKey, nvd.apiKey, "unexpected dependencyCheck.nvd.apiKey") },
-            { assertEquals(nvdDelay, nvd.delay, "unexpected dependencyCheck.nvd.nvdDelay") },
-            { assertEquals(nvdDatafeedUrl, nvd.datafeedUrl, "unexpected dependencyCheck.nvd.datafeedUrl") },
-            { assertEquals(nvdDatafeedUser, nvd.datafeedUser, "unexpected dependencyCheck.nvd.datafeedUser") },
-            { assertEquals(nvdDatafeedPassword, nvd.datafeedPassword, "unexpected dependencyCheck.nvd.datafeedPassword") },
+            { assertEquals(nvdApiKey, nvd.apiKey.get(), "unexpected dependencyCheck.nvd.apiKey") },
+            { assertEquals(nvdDelay, nvd.delay.get(), "unexpected dependencyCheck.nvd.nvdDelay") },
+            { assertEquals(nvdDatafeedUrl, nvd.datafeedUrl.get(), "unexpected dependencyCheck.nvd.datafeedUrl") },
+            { assertEquals(nvdDatafeedUser, nvd.datafeedUser.get(), "unexpected dependencyCheck.nvd.datafeedUser") },
+            { assertEquals(nvdDatafeedPassword, nvd.datafeedPassword.get(), "unexpected dependencyCheck.nvd.datafeedPassword") },
             {
                 assertEquals(
                     analyzersOssIndexUser,
-                    analyzers.ossIndex.username,
+                    analyzers.ossIndex.username.get(),
                     "unexpected dependencyCheck.analyzers.ossIndex.username",
                 )
             },
             {
                 assertEquals(
                     analyzersOssIndexToken,
-                    analyzers.ossIndex.password,
+                    analyzers.ossIndex.password.get(),
                     "unexpected dependencyCheck.analyzers.ossIndex.password",
                 )
             },
             {
                 assertEquals(
                     analyzersKnownExploitedURL,
-                    analyzers.kev.url,
+                    analyzers.kev.url.get(),
                     "unexpected dependencyCheck.analyzers.kev.url",
                 )
             },
             {
                 assertEquals(
                     analyzersKnownExploitedUser,
-                    analyzers.kev.user,
+                    analyzers.kev.user.get(),
                     "unexpected dependencyCheck.analyzers.kev.user",
                 )
             },
             {
                 assertEquals(
                     analyzersKnownExploitedPassword,
-                    analyzers.kev.password,
+                    analyzers.kev.password.get(),
                     "unexpected dependencyCheck.analyzers.kev.password",
                 )
             },
@@ -192,14 +192,14 @@ internal class BaseTh2PluginTest {
             {
                 assertEquals(
                     listOf("SARIF", "JSON", "HTML"),
-                    extension.formats,
+                    extension.formats.get(),
                     "unexpected dependency check formats",
                 )
             },
             {
                 assertEquals(
                     5.0f,
-                    extension.failBuildOnCVSS,
+                    extension.failBuildOnCVSS.get(),
                     "unexpected dependency check failBuildOnCVSS",
                 )
             },
@@ -209,16 +209,16 @@ internal class BaseTh2PluginTest {
 
     private fun assertAnalyzers(extension: AnalyzerExtension) =
         assertAll(
-            { assertFalse(extension.assemblyEnabled, "unexpected analyzers.assemblyEnabled") },
-            { assertFalse(extension.nugetconfEnabled, "unexpected analyzers.nugetconfEnabled") },
-            { assertFalse(extension.nodeEnabled, "unexpected analyzers.nodeEnabled") },
-            { assertNull(extension.kev.url, "unexpected analyzers.knownExploitedURL") },
+            { assertFalse(extension.assemblyEnabled.get(), "unexpected analyzers.assemblyEnabled") },
+            { assertFalse(extension.nugetconfEnabled.get(), "unexpected analyzers.nugetconfEnabled") },
+            { assertFalse(extension.nodePackage.enabled.get(), "unexpected analyzers.nodeEnabled") },
+            { assertNull(extension.kev.url.get(), "unexpected analyzers.knownExploitedURL") },
         )
 
     private fun assertNvd(extension: NvdExtension) =
         assertAll(
             { assertNull(extension.apiKey, "unexpected dependency check nvd.apiKey") },
-            { assertEquals(10_000, extension.delay, "unexpected dependency check nvd.delay") },
+            { assertEquals(10_000, extension.delay.get(), "unexpected dependency check nvd.delay") },
             { assertNull(extension.datafeedUrl, "unexpected dependency check nvd.datafeedUrl") },
         )
 }
