@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import java.io.File
-import java.net.URL
+import java.net.URI
 
 private const val JAVA_VERSION_PROP = "java.version"
 
@@ -86,31 +86,33 @@ class BaseTh2Plugin : Plugin<Project> {
         }
         project.pluginManager.apply(DependencyCheckPlugin::class.java)
         project.extensions.getByType<DependencyCheckExtension>().apply {
-            formats = listOf("SARIF", "JSON", "HTML")
-            failBuildOnCVSS = 5.0f
+            setFormats(listOf("SARIF", "JSON", "HTML"))
+            setFailBuildOnCVSS(5.0f)
 
             nvd.apply {
-                apiKey = project.findProperty("nvdApiKey") as? String
-                delay = (project.findProperty("nvdDelay") as? String)?.toInt() ?: 10_000
-                datafeedUrl = project.findProperty("nvdDatafeedUrl") as? String
-                datafeedUser = project.findProperty("nvdDatafeedUser") as? String
-                datafeedPassword = project.findProperty("nvdDatafeedPassword") as? String
+                setApiKey(project.findProperty("nvdApiKey") as? String)
+                setDelay((project.findProperty("nvdDelay") as? String)?.toInt() ?: 10_000)
+                setDatafeedUrl(project.findProperty("nvdDatafeedUrl") as? String)
+                setDatafeedUser(project.findProperty("nvdDatafeedUser") as? String)
+                setDatafeedPassword(project.findProperty("nvdDatafeedPassword") as? String)
             }
 
             analyzers.apply {
-                assemblyEnabled = false
-                nugetconfEnabled = false
-                nodeEnabled = false
+                setAssemblyEnabled(false)
+                setNugetconfEnabled(false)
+                nodePackage.apply {
+                    setEnabled(false)
+                }
 
                 ossIndex.apply {
-                    username = project.findProperty("analyzersOssIndexUser") as? String
-                    password = project.findProperty("analyzersOssIndexToken") as? String
+                    setUsername(project.findProperty("analyzersOssIndexUser") as? String)
+                    setPassword(project.findProperty("analyzersOssIndexToken") as? String)
                 }
 
                 kev.apply {
-                    url = project.findProperty("analyzersKnownExploitedURL") as? String
-                    user = project.findProperty("analyzersKnownExploitedUser") as? String
-                    password = project.findProperty("analyzersKnownExploitedPassword") as? String
+                    setUrl(project.findProperty("analyzersKnownExploitedURL") as? String)
+                    setUser(project.findProperty("analyzersKnownExploitedUser") as? String)
+                    setPassword(project.findProperty("analyzersKnownExploitedPassword") as? String)
                 }
             }
         }
@@ -145,10 +147,10 @@ class BaseTh2Plugin : Plugin<Project> {
             renderers = arrayOf(JsonReportRenderer("licenses.json", false))
             excludeOwnGroup = true
             allowedLicensesFile =
-                URL(
+                URI(
                     project.findProperty(TH2_LICENCE_ALLOW_LICENCE_URL_PROP)?.toString()
                         ?: "$BASE_EXTERNAL_CONFIGURATION_URL/license-compliance/gradle-license-report/allowed-licenses.json",
-                )
+                ).toURL()
         }
     }
 
