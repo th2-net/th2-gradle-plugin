@@ -24,12 +24,15 @@ import javax.inject.Inject
 
 abstract class JavaReleaseTh2Extension
     @Inject
-    constructor(project: Project) {
+    constructor(
+        project: Project,
+    ) {
         /**
          * Defines the target JVM version to compile sources for.
          * Uses, [JavaVersion.VERSION_11] by default
          */
         val targetJavaVersion: Property<JavaVersion> =
-            project.objects.property<JavaVersion>()
+            project.objects
+                .property<JavaVersion>()
                 .convention(JavaVersion.VERSION_11)
     }

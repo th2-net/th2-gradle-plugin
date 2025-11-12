@@ -171,7 +171,6 @@ buildConfig {
 
 ktlint {
     debug.set(true)
-    version.set(libs.versions.ktlint)
     reporters {
         reporter(ReporterType.HTML)
     }

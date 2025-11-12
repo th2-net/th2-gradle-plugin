@@ -26,6 +26,8 @@ import javax.inject.Inject
  */
 abstract class DockerTh2Extension
     @Inject
-    constructor(project: Project) {
+    constructor(
+        project: Project,
+    ) {
         val copySpec: CopySpec = project.copySpec()
     }

@@ -60,7 +60,8 @@ class Th2GrpcGradlePluginFunctionalTest {
         projectDir.writeProtoFile()
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withPluginClasspath()
@@ -72,8 +73,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     ":generateGitProperties",
-                )
-                .build()
+                ).build()
 
         val buildDirectory = projectDir / "build"
 
@@ -113,7 +113,8 @@ class Th2GrpcGradlePluginFunctionalTest {
         projectDir.writeProtoFile(service = false)
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withPluginClasspath()
@@ -125,8 +126,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     ":generateGitProperties",
-                )
-                .build()
+                ).build()
 
         val buildDirectory = projectDir / "build"
 
@@ -189,7 +189,8 @@ class Th2GrpcGradlePluginFunctionalTest {
         subProject.writeProtoFile()
 
         val result =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withDebug(true)
                 .withPluginClasspath()
@@ -201,8 +202,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                     // because no git repository exist in test
                     "-x",
                     "generateGitProperties",
-                )
-                .build()
+                ).build()
 
         val buildDirectory = subProject / "build"
 
@@ -220,8 +220,7 @@ class Th2GrpcGradlePluginFunctionalTest {
                 .resolve("proto")
                 .also {
                     it.mkdirs()
-                }
-                .resolve("test.proto")
+                }.resolve("test.proto")
 
         protoFile.writeText(
             """
