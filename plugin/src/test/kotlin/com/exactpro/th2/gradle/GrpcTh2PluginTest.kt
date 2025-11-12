@@ -33,7 +33,8 @@ class GrpcTh2PluginTest {
     fun `configure correct dependencies between java compile and proto tasks`() {
         // Create a test project and apply the plugin
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.plugins.apply("java-library")
@@ -46,13 +47,19 @@ class GrpcTh2PluginTest {
             { assertNotNull(generateProtoTask) { "cannot find generateProto task" } },
             {
                 assertTrue(
-                    project.tasks.getByName(JavaPlugin.COMPILE_JAVA_TASK_NAME).dependsOn.contains(generateProtoTask),
+                    project.tasks
+                        .getByName(JavaPlugin.COMPILE_JAVA_TASK_NAME)
+                        .dependsOn
+                        .contains(generateProtoTask),
                     "${JavaPlugin.COMPILE_JAVA_TASK_NAME} does not depend on generateProto",
                 )
             },
             {
                 assertTrue(
-                    project.tasks.getByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).dependsOn.contains(generateProtoTask),
+                    project.tasks
+                        .getByName(JavaPlugin.PROCESS_RESOURCES_TASK_NAME)
+                        .dependsOn
+                        .contains(generateProtoTask),
                     "${JavaPlugin.PROCESS_RESOURCES_TASK_NAME} does not depend on generateProto",
                 )
             },
@@ -63,7 +70,8 @@ class GrpcTh2PluginTest {
     fun `does not add service generator to dependencies if it is not enabled`() {
         // Create a test project and apply the plugin
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.plugins.apply("java-library")
@@ -72,7 +80,8 @@ class GrpcTh2PluginTest {
         (project as DefaultProject).evaluate()
 
         val serviceGenerator =
-            project.configurations.getByName("implementation")
+            project.configurations
+                .getByName("implementation")
                 .allDependencies
                 .find {
                     it.group == "com.exactpro.th2" && it.name == "grpc-service-generator"
@@ -84,7 +93,8 @@ class GrpcTh2PluginTest {
     fun `adds service generator to dependencies if it is enabled`() {
         // Create a test project and apply the plugin
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.plugins.apply("java-library")
@@ -95,7 +105,8 @@ class GrpcTh2PluginTest {
         (project as DefaultProject).evaluate()
 
         val serviceGenerator =
-            project.configurations.getByName("implementation")
+            project.configurations
+                .getByName("implementation")
                 .allDependencies
                 .find {
                     it.group == "com.exactpro.th2" && it.name == "grpc-service-generator"
@@ -106,7 +117,8 @@ class GrpcTh2PluginTest {
     @Test
     fun `reports error if not a java-library plugin is applied`() {
         val project =
-            ProjectBuilder.builder()
+            ProjectBuilder
+                .builder()
                 .build()
 
         project.plugins.apply("java")
