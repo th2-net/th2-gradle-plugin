@@ -211,11 +211,16 @@ class BaseTh2Plugin : Plugin<Project> {
         // only if we have Java plugin applied
         plugins.withType<JavaPlugin> {
             val project = this@configureBomDependency
-            project.dependencies
-                .add(
+            project.dependencies.apply {
+                add(
                     JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME,
                     project.dependencies.platform(Libraries.TH2_BOM),
                 )
+                add(
+                    JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME,
+                    project.dependencies.platform(Libraries.TH2_BOM),
+                )
+            }
         }
         // only if we have JavaTestFixtures plugin applied
         plugins.withType<JavaTestFixturesPlugin> {
