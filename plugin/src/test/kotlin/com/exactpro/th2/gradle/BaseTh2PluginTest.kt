@@ -52,7 +52,9 @@ internal class BaseTh2PluginTest {
             { assertHasPlugin(project, DependencyCheckPlugin::class.java) },
             { assertHasPlugin(project, LicenseReportPlugin::class.java) },
             { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
+            { assertHasBomDependency(project, "compileOnly") },
             { assertHasBomDependency(project, "implementation") },
+            { assertHasBomDependency(project, "testCompileOnly") },
             { assertHasBomDependency(project, "testImplementation") },
             { assertDependencyCheck(project.the<DependencyCheckExtension>()) },
         )
@@ -70,7 +72,9 @@ internal class BaseTh2PluginTest {
             { assertHasPlugin(project, DependencyCheckPlugin::class.java) },
             { assertHasPlugin(project, LicenseReportPlugin::class.java) },
             { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
+            { assertHasBomDependency(project, "compileOnly") },
             { assertHasBomDependency(project, "implementation") },
+            { assertHasBomDependency(project, "testCompileOnly") },
             { assertHasBomDependency(project, "testImplementation") },
             { assertHasBomDependency(project, "testFixturesImplementation") },
         )

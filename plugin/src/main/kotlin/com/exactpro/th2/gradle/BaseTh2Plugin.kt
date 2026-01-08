@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2025 Exactpro (Exactpro Systems Limited)
+ * Copyright 2024-2026 Exactpro (Exactpro Systems Limited)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -217,7 +217,11 @@ class BaseTh2Plugin : Plugin<Project> {
                     project.dependencies.platform(Libraries.TH2_BOM),
                 )
                 add(
-                    JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME,
+                    JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME,
+                    project.dependencies.platform(Libraries.TH2_BOM),
+                )
+                add(
+                    JavaPlugin.TEST_COMPILE_ONLY_CONFIGURATION_NAME,
                     project.dependencies.platform(Libraries.TH2_BOM),
                 )
             }
