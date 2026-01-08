@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2025 Exactpro (Exactpro Systems Limited)
+ * Copyright 2024-2026 Exactpro (Exactpro Systems Limited)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ internal class BaseTh2PluginTest {
             { assertHasPlugin(project, LicenseReportPlugin::class.java) },
             { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
             { assertHasBomDependency(project, "implementation") },
+            { assertHasBomDependency(project, "testImplementation") },
             { assertDependencyCheck(project.the<DependencyCheckExtension>()) },
         )
     }
@@ -70,6 +71,7 @@ internal class BaseTh2PluginTest {
             { assertHasPlugin(project, LicenseReportPlugin::class.java) },
             { assertHasPlugin(project, GitPropertiesPlugin::class.java) },
             { assertHasBomDependency(project, "implementation") },
+            { assertHasBomDependency(project, "testImplementation") },
             { assertHasBomDependency(project, "testFixturesImplementation") },
         )
     }
