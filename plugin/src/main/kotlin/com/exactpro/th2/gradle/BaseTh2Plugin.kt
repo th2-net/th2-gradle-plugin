@@ -221,7 +221,6 @@ class BaseTh2Plugin : Plugin<Project> {
                     project.dependencies.platform(Libraries.TH2_BOM),
                 )
             }
-
         }
         // only if we have JavaTestFixtures plugin applied
         plugins.withType<JavaTestFixturesPlugin> {
