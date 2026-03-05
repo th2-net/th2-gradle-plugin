@@ -523,6 +523,7 @@ class Th2PublishGradlePluginFunctionalTest {
             }
             """.trimIndent(),
         )
+        projectDir.resolve("sub").also(File::mkdir)
 
         val exception =
             assertThrows<UnexpectedBuildFailure> {
