@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
@@ -83,7 +82,7 @@ functionalTest {
         listOf(
             strategies.coverageForGradleVersion("8.4"),
             strategies.coverageForGradleVersion("8.14.3"),
-//            strategies.coverageForLatestGlobalAvailableVersion, FIXME: provide support for gradle 9.0.0 version
+            strategies.coverageForLatestGlobalAvailableVersion,
             strategies.coverageForGradleVersion(GradleVersion.current().version),
         ),
     )
@@ -233,7 +232,7 @@ publishing {
 }
 
 fun Project.markerJarTask(pluginName: String): TaskProvider<Jar> =
-    tasks.register<Jar>("marker${pluginName.capitalizeAsciiOnly()}Jar") {
+    tasks.register<Jar>("marker${pluginName.replaceFirstChar { it.uppercase() }}Jar") {
         archiveBaseName.set("marker-$pluginName")
         manifest.attributes(
             "Gradle-Plugin-Name" to pluginName,
@@ -241,7 +240,7 @@ fun Project.markerJarTask(pluginName: String): TaskProvider<Jar> =
     }
 
 fun Project.markerSourceJarTask(pluginName: String): TaskProvider<Jar> =
-    tasks.register<Jar>("marker${pluginName.capitalizeAsciiOnly()}SourceJar") {
+    tasks.register<Jar>("marker${pluginName.replaceFirstChar { it.uppercase() }}SourceJar") {
         archiveBaseName.set("marker-$pluginName-source")
         manifest.attributes(
             "Gradle-Plugin-Name" to pluginName,
@@ -249,7 +248,7 @@ fun Project.markerSourceJarTask(pluginName: String): TaskProvider<Jar> =
     }
 
 fun Project.markerJavadocJarTask(pluginName: String): TaskProvider<Jar> =
-    tasks.register<Jar>("marker${pluginName.capitalizeAsciiOnly()}JavadocJar") {
+    tasks.register<Jar>("marker${pluginName.replaceFirstChar { it.uppercase() }}JavadocJar") {
         archiveBaseName.set("marker-$pluginName-javadoc")
         manifest.attributes(
             "Gradle-Plugin-Name" to pluginName,
