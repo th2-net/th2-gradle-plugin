@@ -55,7 +55,7 @@ class Th2BaseGradlePluginFunctionalTest {
             """
             plugins {
                 id('java-library')
-                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('org.jetbrains.kotlin.jvm') version '2.2.21'
                 id('com.exactpro.th2.gradle.base')
             }
             
@@ -128,7 +128,7 @@ class Th2BaseGradlePluginFunctionalTest {
             """
             plugins {
                 id('java-library')
-                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('org.jetbrains.kotlin.jvm') version '2.2.21'
                 id('com.exactpro.th2.gradle.base')
             }
             
@@ -201,7 +201,7 @@ class Th2BaseGradlePluginFunctionalTest {
             """
             plugins {
                 id('java-library')
-                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('org.jetbrains.kotlin.jvm') version '2.2.21'
                 id('com.exactpro.th2.gradle.base')
             }
             
@@ -270,7 +270,7 @@ class Th2BaseGradlePluginFunctionalTest {
             """
             plugins {
                 id('java-library')
-                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('org.jetbrains.kotlin.jvm') version '2.2.21'
                 id('com.exactpro.th2.gradle.base')
             }
             
@@ -329,7 +329,7 @@ class Th2BaseGradlePluginFunctionalTest {
         buildFile.writeText(
             """
             plugins {
-                id('org.jetbrains.kotlin.jvm') version '1.9.0'
+                id('org.jetbrains.kotlin.jvm') version '2.2.21'
                 id('com.exactpro.th2.gradle.base')
             }
             
